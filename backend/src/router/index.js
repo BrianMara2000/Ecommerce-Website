@@ -4,41 +4,47 @@ import Dashboard from "../views/Dashboard.vue";
 import Login from "../views/Login.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import ResetPassword from "../views/ResetPassword.vue";
+import Products from "../views/Products.vue";
 
 const routes = [
-    {
-        path: "/app",
-        name: "app",
-        component: AppLayout,
-        children: [
-            {
-                path: "dashboard",
-                name: "app.dashboard",
-                component: Dashboard,
-            },
-        ],
-    },
+  {
+    path: "/app",
+    name: "app",
+    component: AppLayout,
+    children: [
+      {
+        path: "dashboard",
+        name: "app.dashboard",
+        component: Dashboard,
+      },
+      {
+        path: "products",
+        name: "app.products",
+        component: Products,
+      },
+    ],
+  },
 
-    {
-        path: "/login",
-        name: "login",
-        component: Login,
-    },
-    {
-        path: "/forgot-password",
-        name: "forgot-password",
-        component: ForgotPassword,
-    },
-    {
-        path: "/reset-password/token",
-        name: "reset-password",
-        component: ResetPassword,
-    },
+  {
+    path: "/login",
+    name: "login",
+    component: Login,
+  },
+  {
+    path: "/forgot-password",
+    name: "forgot-password",
+    component: ForgotPassword,
+  },
+  {
+    path: "/reset-password/token",
+    name: "reset-password",
+    component: ResetPassword,
+  },
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes,
+  history: createWebHistory(),
+  routes,
 });
 
 export default router;
