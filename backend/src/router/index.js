@@ -5,6 +5,7 @@ import Login from "../views/Login.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import ResetPassword from "../views/ResetPassword.vue";
 import Products from "../views/Products.vue";
+import NotFound from "../views/NotFound.vue";
 import store from "../store";
 
 const routes = [
@@ -53,6 +54,11 @@ const routes = [
     meta: {
       requiresGuest: true,
     },
+  },
+  {
+    path: "/:pathMatch(.*)",
+    name: "notfound",
+    component: NotFound,
   },
 ];
 
