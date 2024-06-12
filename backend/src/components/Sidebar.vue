@@ -1,6 +1,8 @@
 <template>
   <!-- Sidebar -->
-  <div class="w-[200px] bg-indigo-700 rounded-l-xl text-white py-4 px-2">
+  <div
+    class="w-[200px] transition-all bg-indigo-700 rounded-l-xl text-white py-4 px-2"
+  >
     <router-link
       :to="{ name: 'app.dashboard' }"
       class="flex items-center hover:bg-black/30 transition-colors p-2 rounded mb-2 outline-none"

@@ -1,9 +1,14 @@
 <template>
-  <header class="h-16 shadow bg-white flex justify-between items-center py-10">
-    <button class="p-6 text-gray-700">
+  <header
+    class="h-16 shadow bg-white flex justify-between items-center py-10 px-2"
+  >
+    <button
+      @click="emit('toggle-sidebar')"
+      class="flex justify-center items-center rounded transition-colors p-2 text-gray-700 hover:bg-black/10"
+    >
       <Bars4Icon class="w-6" />
     </button>
-    <div class="px-10">
+    <div class="px-2">
       <Menu as="div" class="relative inline-block text-left">
         <div>
           <MenuButton class="flex items-center">
@@ -78,4 +83,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { ChevronDownIcon } from "@heroicons/vue/20/solid";
+import { defineEmits } from "vue";
+
+const emit = defineEmits(["toggle-sidebar"]);
 </script>
