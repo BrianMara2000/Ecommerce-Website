@@ -1,26 +1,25 @@
 <template>
-    <div
-        class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8"
-    >
-        <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-            <h2
-                class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900"
-            >
-                {{ title }}
-            </h2>
-        </div>
-
+  <div class="flex min-h-full">
+    <Sidebar />
+    <div class="flex-1">
+      <header class="h-8 shadow bg-white">Header</header>
+      <!-- Content -->
+      <main>
         <router-view></router-view>
+      </main>
+      <!-- Content -->
     </div>
+  </div>
 </template>
 
 <script setup>
 import { defineProps } from "vue";
+import Sidebar from "./Sidebar.vue";
 
 const props = defineProps({
-    title: {
-        type: String,
-        required: true,
-    },
+  title: {
+    type: String,
+    required: true,
+  },
 });
 </script>
