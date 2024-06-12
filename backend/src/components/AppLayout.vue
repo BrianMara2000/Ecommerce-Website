@@ -19,7 +19,6 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from "vue";
 import Sidebar from "./Sidebar.vue";
 import Navbar from "./Navbar.vue";
 
