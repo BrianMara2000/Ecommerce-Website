@@ -22,16 +22,9 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import Sidebar from "./Sidebar.vue";
 import Navbar from "./Navbar.vue";
+import store from "../store";
 
-const props = defineProps({
-  // title: {
-  //   type: String,
-  //   required: true,
-  // },
-  // toggle: {
-  //   type: Boolean,
-  // },
-});
+const props = defineProps({});
 
 const sidebarOpened = ref(true);
 
@@ -41,6 +34,7 @@ const toggleSidebar = () => {
 };
 
 onMounted(() => {
+  store.dispatch("getUser");
   handleSidebarOpened();
   window.addEventListener("resize", handleSidebarOpened);
 });
@@ -51,6 +45,5 @@ onUnmounted(() => {
 
 const handleSidebarOpened = () => {
   sidebarOpened.value = window.outerWidth > 768;
-  // console.log(sidebarOpened.value);
 };
 </script>
