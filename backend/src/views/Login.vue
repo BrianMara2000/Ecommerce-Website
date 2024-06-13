@@ -1,7 +1,7 @@
 <template>
   <GuestLayout title="Sign in to your acoount">
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-      <form class="space-y-6" method="POST">
+      <form class="space-y-6" method="POST" @submit.prevent="login">
         <div>
           <label
             for="email"
@@ -16,6 +16,7 @@
               autocomplete="email"
               required
               class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              v-model="user.email"
             />
           </div>
         </div>
@@ -27,13 +28,6 @@
               class="block text-sm font-medium leading-6 text-gray-900"
               >Password</label
             >
-            <div class="text-sm">
-              <router-link
-                to="/forgot-password"
-                class="font-semibold text-indigo-600 hover:text-indigo-500"
-                >Forgot password?
-              </router-link>
-            </div>
           </div>
           <div class="mt-2">
             <input
@@ -43,10 +37,32 @@
               autocomplete="current-password"
               required
               class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              v-model="user.password"
             />
           </div>
         </div>
 
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              v-model="user.remember"
+            />
+            <label for="remember-me" class="ml-2 block text-sm text-gray-900">
+              Remember me
+            </label>
+          </div>
+          <div class="text-sm">
+            <router-link
+              to="/forgot-password"
+              class="font-semibold text-indigo-600 hover:text-indigo-500"
+              >Forgot password?
+            </router-link>
+          </div>
+        </div>
         <div>
           <button
             type="submit"
@@ -61,9 +77,32 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
+import store from "../store";
+import router from "../router";
 import GuestLayout from "../components/GuestLayout.vue";
 
+let loading = ref(false);
+let errorMsg = ref("");
+
+const user = {
+  email: "",
+  password: "",
+  remember: false,
+};
+
 const login = () => {
-  console.log("Login");
+  loading.value = true;
+
+  store
+    .dispatch("login", user)
+    .then(() => {
+      loading.value = false;
+      router.push({ name: "app.dashboard" });
+    })
+    .catch(({ response }) => {
+      loading.value = false;
+      errorMsg.value = response.data.message;
+    });
 };
 </script>

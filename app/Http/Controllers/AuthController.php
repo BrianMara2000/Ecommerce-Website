@@ -39,7 +39,8 @@ class AuthController extends Controller
 
         return response([
             'user' => $user,
-            'token' => $token
+            'token' => $token,
+            'message' => 'Logged in Successfully'
         ]);
     }
 
@@ -48,6 +49,6 @@ class AuthController extends Controller
         $user = Auth::user();
         $user->currentAccessToken()->delete();
 
-        return response('', 204);
+        return response('Logged out successfully', 204);
     }
 }
