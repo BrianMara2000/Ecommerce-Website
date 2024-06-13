@@ -17,7 +17,7 @@
               alt="User Profile"
               class="rounded-full w-10 mr-2"
             />
-            <small>John Smith</small>
+            <small>{{ currentUser.name }}</small>
             <ChevronDownIcon
               class="h-5 w-5 text-violet-200 hover:text-violet-100"
               aria-hidden="true"
@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed } from "vue";
 import {
   Bars4Icon,
   ArrowRightStartOnRectangleIcon,
@@ -95,4 +95,6 @@ const logout = () => {
     router.push({ name: "login" });
   });
 };
+
+const currentUser = computed(() => store.state.user.data);
 </script>
