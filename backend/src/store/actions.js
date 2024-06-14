@@ -23,3 +23,15 @@ export function logout({ commit }) {
     return response;
   });
 }
+
+export function getProducts({ commit }) {
+  commit("setProducts", [true]);
+  return axiosClient
+    .get("/product")
+    .then((res) => {
+      commit("setProducts", [false, res.data]);
+    })
+    .catch(() => {
+      commit("setProducts", [false]);
+    });
+}

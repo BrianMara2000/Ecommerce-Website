@@ -34,7 +34,7 @@
         />
       </div>
     </div>
-    <Spinner v-if="products.loading" />
+    <Spinner v-if="products.loading" class="mt-3" />
     <template v-else>
       <table class="table-auto w-full">
         <thead>
@@ -50,7 +50,7 @@
           <tr v-for="product of products.data">
             <td class="border-b p-2">{{ product.id }}</td>
             <td class="border-b p-2">
-              <img class="w-16" src="product.image" alt="product.title" />
+              <img class="w-16" :src="product.image" :alt="product.title" />
             </td>
             <td
               class="border-b p-2 max-w-[200px] whitespace-nowrap overflow-hidden text-ellipsis"
@@ -67,5 +67,20 @@
 </template>
 
 <script setup>
+import { computed, onMounted, ref } from "vue";
 import Spinner from "../components/core/Spinner.vue";
+import store from "../store";
+import { PRODUCTS_PER_PAGE } from "../constants";
+
+const perPage = ref(PRODUCTS_PER_PAGE);
+const search = ref("");
+const products = computed(() => store.state.products);
+
+onMounted(() => {
+  getProducts();
+});
+
+const getProducts = () => {
+  store.dispatch("getProducts");
+};
 </script>
