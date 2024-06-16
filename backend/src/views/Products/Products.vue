@@ -10,7 +10,7 @@
     </button>
   </div>
 
-  <ProductModal v-model="showModal" />
+  <ProductModal v-model="showModal" :product="productModel" />
   <ProductsTable />
 </template>
 
@@ -20,6 +20,13 @@ import ProductsTable from "./ProductsTable.vue";
 import ProductModal from "./ProductModal.vue";
 
 const showModal = ref(false);
+const productModel = ref({
+  id: "",
+  titie: "",
+  image: "",
+  description: "",
+  price: "",
+});
 
 function showProductModal() {
   showModal.value = true;
