@@ -2,7 +2,7 @@
   <th
     @click="emit('click', field)"
     class="border-b-2 p-2 text-left cursor-pointer bg-gray-100"
-    :class="field === sortField ? 'bg-blue-100' : ''"
+    :class="field === sortField ? 'bg-blue-200' : ''"
   >
     <div class="flex justify-between">
       <slot></slot>
