@@ -23,3 +23,26 @@ export function logout({ commit }) {
     return response;
   });
 }
+
+export function getProducts(
+  { commit },
+  { url = null, sort_field, sort_direction, search = "", perPage = 10 }
+) {
+  commit("setProducts", [true]);
+  url = url || "/product";
+  return axiosClient
+    .get(url, {
+      params: {
+        search,
+        sort_field,
+        sort_direction,
+        per_page: perPage,
+      },
+    })
+    .then((res) => {
+      commit("setProducts", [false, res.data]);
+    })
+    .catch(() => {
+      commit("setProducts", [false]);
+    });
+}
