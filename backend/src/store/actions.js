@@ -26,7 +26,7 @@ export function logout({ commit }) {
 
 export function getProducts(
   { commit },
-  { url = null, sort_field, sort_direction, search = "", perPage = 10 }
+  { url = null, sort_field, sort_direction, search = "", perPage = 10 } = {}
 ) {
   commit("setProducts", [true]);
   url = url || "/products";
@@ -76,4 +76,8 @@ export function updateProduct({ commit }, product) {
   }
 
   return axiosClient.post(`/products/${id}`, product);
+}
+
+export function deleteProduct({ commit }, id) {
+  return axiosClient.delete(`/products/${id}`);
 }
