@@ -85,13 +85,10 @@ class ProductController extends Controller
         return response()->noContent();
     }
 
-    private function saveImage(UploadedFile $image)
+    private function saveImage(\Illuminate\Http\UploadedFile $image)
     {
-        $path = 'images/' . Str::random();
-        if (!Storage::exists($path)) {
-            Storage::makeDirectory($path, 0755, true);
-        }
-        if (!Storage::putFileAS('public/' . $path, $image, $image->getClientOriginalName())) {
+        $path = 'public/images/' . Str::random();
+        if (!Storage::putFileAs($path, $image, $image->getClientOriginalName())) {
             throw new \Exception("Unable to save file \"{$image->getClientOriginalName()}\"");
         }
 
