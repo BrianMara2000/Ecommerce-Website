@@ -11,7 +11,7 @@
         <textarea
           :name="name"
           :required="required"
-          :value="props.model"
+          :value="props.modelValue"
           @input="emit('update:modelValue', $event.target.value)"
           :class="inputClasses"
           :placeholder="label"
@@ -34,7 +34,7 @@
           :name="name"
           :required="required"
           :value="props.modelValue"
-          @input="emit('change', $event.target.value)"
+          @input="emit('update:modelValue', $event.target.value)"
           :class="inputClasses"
           :placeholder="label"
           step="0.01"
@@ -65,11 +65,15 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  append: {
+    type: String,
+    default: "",
+  },
 });
 
 const inputClasses = computed(() => {
   const cls = [
-    `block w-full py-2 px-3  border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 text-sm`,
+    `block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`,
   ];
 
   if (props.append && !props.prepend) {

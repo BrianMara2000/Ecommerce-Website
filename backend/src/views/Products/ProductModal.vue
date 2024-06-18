@@ -174,7 +174,7 @@ onUpdated(() => {
 const onSubmit = () => {
   loading.value = true;
   if (product.value.id) {
-    store.dispatch("UpdateProduct", product.value).then((response) => {
+    store.dispatch("updateProduct", product.value).then((response) => {
       loading.value = false;
       if (response.status === 200) {
         store.dispatch("getProducts");
