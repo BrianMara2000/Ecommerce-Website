@@ -40,30 +40,18 @@
             </div>
           </div>
         </div>
+        <Pagination :products="products" />
       </div>
     </div>
   </UserLayout>
 </template>
 
 <script setup>
-import { Head, Link } from "@inertiajs/vue3";
+import { ref } from "vue";
 import UserLayout from "./Layouts/UserLayout.vue";
+import Pagination from "@/Components/Pagination.vue";
 
 defineProps({
-  canLogin: {
-    type: Boolean,
-  },
-  canRegister: {
-    type: Boolean,
-  },
-  laravelVersion: {
-    type: String,
-    required: true,
-  },
-  phpVersion: {
-    type: String,
-    required: true,
-  },
   products: {
     type: Object,
     required: true,
