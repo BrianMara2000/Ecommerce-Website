@@ -14,6 +14,7 @@
           <option value="50">50</option>
           <option value="100">100</option>
         </select>
+        <span class="ml-3">Found {{ products.total }} products</span>
       </div>
       <div>
         <input
@@ -162,9 +163,15 @@
     </table>
     <div
       v-if="!products.loading"
-      class="flex justify-between items-center mt-5"
+      :class="!products.data.length ? 'justify-center' : 'justify-between'"
+      class="flex items-center mt-5"
     >
-      <span> Showing from {{ products.from }} to {{ products.to }} </span>
+      <span class="text-center" v-if="!products.data.length"
+        >No products found</span
+      >
+      <span v-else>
+        Showing from {{ products.from }} to {{ products.to }}
+      </span>
       <nav
         v-if="products.total > products.limit"
         class="relative z-0 inline-flex justify-center rounded-md shadow-sm -space-x-px"
