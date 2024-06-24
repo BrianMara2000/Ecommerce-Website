@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\ProductController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', [UserController::class, 'index'])->name('user.home');
+Route::get('/', [ProductController::class, 'index'])->name('user.home');
+Route::get('/product/{product:slug}', [ProductController::class, 'show'])->name('product.view');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

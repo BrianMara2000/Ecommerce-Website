@@ -11,13 +11,14 @@
         <div
           class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"
         >
-          <div
+          <a
             v-for="product in products.data"
             :key="product.id"
-            class="group relative"
+            class="group relative cursor-pointer"
+            :href="route('product.view', product.slug)"
           >
             <div
-              class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80"
+              class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80 cursor-pointer"
             >
               <img
                 :src="product.image"
@@ -38,7 +39,7 @@
                 ${{ product.price }}
               </p>
             </div>
-          </div>
+          </a>
         </div>
         <Pagination :products="products" />
       </div>
@@ -48,7 +49,7 @@
 
 <script setup>
 import { ref } from "vue";
-import UserLayout from "./Layouts/UserLayout.vue";
+import UserLayout from "../Layouts/UserLayout.vue";
 import Pagination from "@/Components/Pagination.vue";
 
 defineProps({
