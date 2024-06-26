@@ -1,6 +1,5 @@
 <template>
   <Header />
-  <Hero />
   <slot />
   <Footer />
 </template>
@@ -9,9 +8,7 @@
 import { onMounted } from "vue";
 import { initFlowbite } from "flowbite";
 import Header from "./Header.vue";
-import Hero from "./Hero.vue";
 import Footer from "./Footer.vue";
-
 onMounted(() => {
   initFlowbite();
 });
