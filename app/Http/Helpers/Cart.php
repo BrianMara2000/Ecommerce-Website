@@ -2,7 +2,9 @@
 
 namespace App\Http\Helpers;
 
+use App\Models\Product;
 use App\Models\CartItem;
+use Illuminate\Support\Arr;
 
 class Cart
 {
@@ -39,9 +41,8 @@ class Cart
 
   public static function getCookieCartItems()
   {
-    $request = \request();
 
-    return json_decode($request->cookie('cart_items', '[]'), true);
+    return json_decode(request()->cookie('cart_items', '[]'), true);
   }
 
   public static function getCountFromItems($cartItems)
@@ -73,5 +74,14 @@ class Cart
     if (!empty($newCartItems)) {
       CartItem::insert($newCartItems);
     }
+  }
+
+  public static function getProductsAndCartItems()
+  {
+    $cartItems = self::getCartItems();
+    $ids = Arr::pluck($cartItems, 'product_id');
+    $products = Product::whereIn('id', $ids)->get();
+    $cartItems = Arr::keyBy($cartItems, 'product_id');
+    return [$products, $cartItems];
   }
 }

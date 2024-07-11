@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Helpers\Cart;
@@ -36,34 +36,27 @@ class CartController extends Controller
 
 		if ($user) {
 			$cartItem = CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->first();
-
 			if ($cartItem) {
-				$cartItem->quantity += $quantity;
-				$cartItem->update();
+				$cartItem->increment('quantity');
 			} else {
-				$data = [
-					'user_id' => $request->user()->id,
+				CartItem::create([
+					'user_id' => $user->id,
 					'product_id' => $product->id,
-					'quantity' => $quantity,
-				];
-
-				CartItem::create($data);
+					'quantity' => 1,
+				]);
 			}
-
-			return response([
-				'count' => Cart::getCartItemsCount()
-			]);
 		} else {
-			$cartItems = json_decode($request->cookie('cartItems', '[]'), true);
-			$productFound = false;
-			foreach ($cartItems as &$item) {
+			$cartItems = Cart::getCookieCartItems();
+			$isProductExists = false;
+			foreach ($cartItems as $item) {
 				if ($item['product_id'] === $product->id) {
 					$item['quantity'] += $quantity;
-					$productFound = true;
+					$isProductExists = true;
 					break;
 				}
 			}
-			if (!$productFound) {
+
+			if (!$isProductExists) {
 				$cartItems[] = [
 					'user_id' => null,
 					'product_id' => $product->id,
@@ -72,9 +65,9 @@ class CartController extends Controller
 				];
 			}
 			Cookie::queue('cart_items', json_encode($cartItems), 60 * 24 * 30);
-
-			return response(['count' => Cart::getCountFromItems($cartItems)]);
 		}
+
+		return redirect()->back()->with('success', 'cart added successfully');
 	}
 	public function remove(Request $request, Product $product)
 	{
@@ -85,9 +78,10 @@ class CartController extends Controller
 				$cartItem->delete();
 			}
 
-			return response([
-				'count' => Cart::getCartItemsCount(),
-			]);
+			// return response([
+			// 	'count' => Cart::getCartItemsCount(),
+			// ]);
+			return redirect()->back()->with('success', 'item removed successfully');
 		} else {
 			$cartItems = json_decode($request->cookie('cart_items', '[]'), true);
 			foreach ($cartItems as $i => &$item) {
@@ -98,7 +92,8 @@ class CartController extends Controller
 			}
 			Cookie::queue('cart_items', json_encode($cartItems), 60 * 24 * 30);
 
-			return response(['count' => Cart::getCountFromItems($cartItems)]);
+			// return response(['count' => Cart::getCountFromItems($cartItems)]);
+			return redirect()->back()->with('success', 'item removed successfully');
 		}
 	}
 	public function updateQuantity(Request $request, Product $product)
@@ -119,9 +114,9 @@ class CartController extends Controller
 		if ($user) {
 			CartItem::where(['user_id' => $request->user()->id, 'product_id' => $product->id])->update(['quantity' => $quantity]);
 
-			return response([
-				'count' => Cart::getCartItemsCount(),
-			]);
+			// return response([
+			// 	'count' => Cart::getCartItemsCount(),
+			// ]);
 		} else {
 			$cartItems = json_decode($request->cookie('cart_items', '[]'), true);
 			foreach ($cartItems as &$item) {
@@ -132,7 +127,8 @@ class CartController extends Controller
 			}
 			Cookie::queue('cart_items', json_encode($cartItems), 60 * 24 * 30);
 
-			return response(['count' => Cart::getCountFromItems($cartItems)]);
+			// return response(['count' => Cart::getCountFromItems($cartItems)]);
 		}
+		return redirect()->back();
 	}
 }
