@@ -13,7 +13,7 @@ Route::middleware(['guestOrVerified'])->group(function () {
         Route::get('/', [CartController::class, 'index'])->name('index');
         Route::post('/add/{product:slug}', [CartController::class, 'add'])->name('add');
         Route::post('/remove/{product:slug}', [CartController::class, 'remove'])->name('remove');
-        Route::post('/update-quantity/{product:slug}', [CartController::class, 'updateQuantity'])->name('updateQuantity');
+        Route::patch('/update-quantity/{product:slug}', [CartController::class, 'updateQuantity'])->name('updateQuantity');
     });
 });
 
