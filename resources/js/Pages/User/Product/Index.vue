@@ -128,7 +128,6 @@ defineProps({
 });
 
 const addToCart = (product) => {
-  console.log(product);
   router.post(route("cart.add", product));
   //   onSuccess: (page) => {
   //     if (page.props.flash.success) {

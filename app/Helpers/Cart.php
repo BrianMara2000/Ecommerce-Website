@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Helpers;
+namespace App\Helpers;
 
 use App\Models\Product;
 use App\Models\CartItem;
@@ -14,7 +14,7 @@ class Cart
     $user = $request->user();
 
     if ($user) {
-      return CartItem::where('user_id', $user->id)->sum('quantity');
+      return CartItem::where('user_id', $user->id)->count(); //sum('quantity')
     } else {
       $cartItems = self::getCookieCartItems();
 

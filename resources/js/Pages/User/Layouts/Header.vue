@@ -4,27 +4,24 @@
     <div
       class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"
     >
-      <a
-        href="https://flowbite.com/"
-        class="flex items-center space-x-3 rtl:space-x-reverse"
-      >
+      <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
         <img
           src="https://flowbite.com/docs/images/logo.svg"
           class="h-8"
           alt="Flowbite Logo"
         />
         <span
-          class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
-          >Flowbite</span
+          class="self-center text-2xl font-bold whitespace-nowrap dark:text-white"
+          >LOGO</span
         >
       </a>
       <div
         v-if="canLogin"
         class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse gap-5"
       >
-        <button
-          type="button"
-          class="relative inline-flex items-center p-2 text-xs hover:bg-gray-200 font-medium text-center rounded-lg focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        <a
+          :href="route('cart.index')"
+          class="relative inline-flex items-center p-2 text-xs hover:bg-gray-200 font-medium text-center rounded-lg"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -46,7 +43,7 @@
           >
             {{ cart.data.count }}
           </div>
-        </button>
+        </a>
 
         <button
           v-if="auth.user"

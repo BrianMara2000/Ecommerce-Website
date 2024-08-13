@@ -2,31 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Helpers\Cart;
-use App\Models\CartItem;
-use App\Models\Product;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Cookie;
 use Inertia\Inertia;
+use App\Helpers\Cart;
+use App\Models\Product;
+use App\Models\CartItem;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\CartResource;
+use Illuminate\Support\Facades\Cookie;
 
 class CartController extends Controller
 {
-	public function index()
+	public function index(Request $request, Product $product)
 	{
-		$cartItems = Cart::getCartItems();
 
-		$ids = Arr::pluck($cartItems, 'product_id');
-		$products = Product::query()->where('id', $ids)->get();
-		$cartItems = Arr::keyBy($cartItems, 'product_id');
-		$total = 0;
-
-		foreach ($products as $product) {
-			$total += $product->price * $cartItems[$product->id]['quantity'];
+		$user = $request->user();
+		if ($user) {
+			$cartItems = CartItem::where('user_id', $user->id)->get();
+			if ($cartItems->count() > 0) {
+				return Inertia::render(
+					'User/Cart/Index',
+					[
+						'cartItems' => $cartItems,
+					]
+				);
+			}
+		} else {
+			$cartItems = Cart::getCookieCartItems();
+			if (count($cartItems) > 0) {
+				$cartItems = new CartResource(Cart::getProductsAndCartItems());
+				return  Inertia::render('User/Cart/Index', ['cartItems' => $cartItems]);
+			} else {
+				return redirect()->back();
+			}
 		}
-
-		return Inertia::render('User/Cart/Index', compact('cartItems', 'products', 'total'));
 	}
 
 	public function add(Request $request, Product $product)

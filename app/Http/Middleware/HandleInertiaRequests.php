@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 use Inertia\Middleware;
-use App\Http\Helpers\Cart;
+use App\Helpers\Cart;
 use Illuminate\Http\Request;
 use App\Http\Resources\CartResource;
 use Illuminate\Foundation\Application;
