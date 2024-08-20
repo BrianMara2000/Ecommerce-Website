@@ -113,10 +113,11 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted } from "vue";
 import UserLayout from "../Layouts/UserLayout.vue";
 import Pagination from "@/Components/Pagination.vue";
-import { router } from "@inertiajs/vue3";
+import { usePage, router } from "@inertiajs/vue3";
+import { toast } from "vue3-toastify";
 
 defineOptions({ layout: UserLayout });
 
@@ -128,18 +129,24 @@ defineProps({
 });
 
 const addToCart = (product) => {
-  router.post(route("cart.add", product));
-  //   onSuccess: (page) => {
-  //     if (page.props.flash.success) {
-  //       Swal.fire({
-  //         toast: true,
-  //         icon: "success",
-  //         position: "top-end",
-  //         showConfirmButton: false,
-  //         title: page.props.flash.success,
-  //       });
-  //     }
-  //   },
-  // });
+  console.log("added to cart");
+  router.visit(route("cart.add", product), {
+    method: "post",
+    onSuccess: (page) => {
+      console.log("Added");
+      if (page.props.flash.success) {
+        toast.success("Added to cart successfully");
+      }
+    },
+  });
 };
+
+onMounted(() => {
+  if (usePage().props.flash.info) {
+    console.log("Cart is empty");
+    toast.info(usePage().props.flash.info);
+  } else {
+    console.log("random");
+  }
+});
 </script>
