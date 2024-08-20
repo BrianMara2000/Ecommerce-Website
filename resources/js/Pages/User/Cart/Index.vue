@@ -136,7 +136,7 @@
                     </button>
 
                     <button
-                      type="button"
+                      @click="removeProduct(product.slug)"
                       class="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500"
                     >
                       <svg
@@ -310,6 +310,7 @@
 import { computed } from "vue";
 import UserLayout from "../Layouts/UserLayout.vue";
 import { usePage, router } from "@inertiajs/vue3";
+import { toast } from "vue3-toastify";
 
 defineOptions({ layout: UserLayout });
 
@@ -321,6 +322,19 @@ const itemId = (id) => carts.value.findIndex((item) => item.product_id === id);
 const update = (product, quantity) => {
   router.patch(route("cart.updateQuantity", product), {
     quantity,
+  });
+};
+
+const removeProduct = (slug) => {
+  console.log("remove", slug);
+  router.visit(route("cart.remove", slug), {
+    method: "delete",
+    onSuccess: (page) => {
+      if (page.props.flash.success) {
+        console.log("removed");
+        toast.success("Item removed from the cart successfully");
+      }
+    },
   });
 };
 </script>

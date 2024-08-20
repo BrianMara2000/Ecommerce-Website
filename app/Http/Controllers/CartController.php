@@ -87,10 +87,6 @@ class CartController extends Controller
 			if ($cartItem) {
 				$cartItem->delete();
 			}
-
-			// return response([
-			// 	'count' => Cart::getCartItemsCount(),
-			// ]);
 			return redirect()->back()->with('success', 'item removed successfully');
 		} else {
 			$cartItems = json_decode($request->cookie('cart_items', '[]'), true);
@@ -102,8 +98,11 @@ class CartController extends Controller
 			}
 			Cookie::queue('cart_items', json_encode($cartItems), 60 * 24 * 30);
 
-			// return response(['count' => Cart::getCountFromItems($cartItems)]);
-			return redirect()->back()->with('success', 'item removed successfully');
+			if (count($cartItems) <= 0) {
+				return redirect()->route('user.home')->with('info', 'Your cart is now Empty');
+			} else {
+				return redirect()->back()->with('success', 'Item removed successfully');
+			}
 		}
 	}
 	public function updateQuantity(Request $request, Product $product)
