@@ -20,7 +20,7 @@ class Cart
 
       return array_reduce(
         $cartItems,
-        fn ($carry, $item) => $carry + $item['quantity'],
+        fn($carry) => $carry + 1,
         0
       );
     }
@@ -32,7 +32,7 @@ class Cart
 
     if ($user) {
       return CartItem::where('user_id', $user->id)->get()->map(
-        fn ($item) => ['product_id' => $item->product_id, 'quantity' => $item->quantity]
+        fn($item) => ['product_id' => $item->product_id, 'quantity' => $item->quantity]
       );
     } else {
       return self::getCookieCartItems();
@@ -49,7 +49,7 @@ class Cart
   {
     return array_reduce(
       $cartItems,
-      fn ($carry, $item) => $carry + $item['quantity'],
+      fn($carry, $item) => $carry + $item['quantity'],
       0
     );
   }
