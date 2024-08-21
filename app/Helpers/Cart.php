@@ -14,13 +14,13 @@ class Cart
     $user = $request->user();
 
     if ($user) {
-      return CartItem::where('user_id', $user->id)->count(); //sum('quantity')
+      return CartItem::where('user_id', $user->id)->sum('quantity'); //sum('quantity')
     } else {
       $cartItems = self::getCookieCartItems();
 
       return array_reduce(
         $cartItems,
-        fn($carry) => $carry + 1,
+        fn($carry, $item) => $carry + $item['quantity'],
         0
       );
     }
