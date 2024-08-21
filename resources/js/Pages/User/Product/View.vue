@@ -288,20 +288,5 @@ defineProps({
 
 defineOptions({ layout: UserLayout });
 
-const quantity = ref(0);
 const isButtonDisabled = ref(false);
-
-const decrement = () => {
-  if (quantity.value <= 0) {
-    isButtonDisabled.value = true;
-  } else {
-    isButtonDisabled.value = false;
-    quantity.value--;
-  }
-};
-
-const increment = () => {
-  quantity.value++;
-  isButtonDisabled.value = false;
-};
 </script>
