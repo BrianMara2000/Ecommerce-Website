@@ -39,10 +39,18 @@
                 >
                   <div class="flex items-center">
                     <button
+                      @click.prevent="
+                        update(product, carts[itemId(product.id)].quantity - 1)
+                      "
                       type="button"
                       id="decrement-button"
                       data-input-counter-decrement="counter-input"
-                      class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+                      :disabled="carts[itemId(product.id)].quantity <= 1"
+                      :class="[
+                        carts[itemId(product.id)].quantity > 1
+                          ? 'inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700'
+                          : 'cursor-not-allowed text-gray-300 dark:text-gray-500',
+                      ]"
                     >
                       <svg
                         class="h-2.5 w-2.5 text-gray-900 dark:text-white"
@@ -70,6 +78,9 @@
                       required
                     />
                     <button
+                      @click.prevent="
+                        update(product, carts[itemId(product.id)].quantity + 1)
+                      "
                       type="button"
                       id="increment-button"
                       data-input-counter-increment="counter-input"
@@ -184,7 +195,7 @@
                   <dd
                     class="text-base font-medium text-gray-900 dark:text-white"
                   >
-                    $7,592.00
+                    ${{ total }}
                   </dd>
                 </dl>
 
@@ -194,7 +205,7 @@
                   >
                     Savings
                   </dt>
-                  <dd class="text-base font-medium text-green-600">-$299.00</dd>
+                  <dd class="text-base font-medium text-green-600">0</dd>
                 </dl>
 
                 <dl class="flex items-center justify-between gap-4">
@@ -206,7 +217,7 @@
                   <dd
                     class="text-base font-medium text-gray-900 dark:text-white"
                   >
-                    $99
+                    0
                   </dd>
                 </dl>
 
@@ -219,7 +230,7 @@
                   <dd
                     class="text-base font-medium text-gray-900 dark:text-white"
                   >
-                    $799
+                    0
                   </dd>
                 </dl>
               </div>
@@ -231,7 +242,7 @@
                   Total
                 </dt>
                 <dd class="text-base font-bold text-gray-900 dark:text-white">
-                  $8,191.00
+                  ${{ total }}
                 </dd>
               </dl>
             </div>
