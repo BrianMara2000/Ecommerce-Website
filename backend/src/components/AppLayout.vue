@@ -35,7 +35,6 @@ const currentUser = computed(() => store.state.user.data);
 
 const toggleSidebar = () => {
   sidebarOpened.value = !sidebarOpened.value;
-  console.log("toggleSidebar");
 };
 
 onMounted(() => {

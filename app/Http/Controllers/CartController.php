@@ -27,6 +27,8 @@ class CartController extends Controller
 						'cartItems' => $cartItems,
 					]
 				);
+			} else {
+				return redirect()->back()->with('info', "Cart was empty");
 			}
 		} else {
 			$cartItems = Cart::getCookieCartItems();
@@ -34,7 +36,7 @@ class CartController extends Controller
 				$cartItems = new CartResource(Cart::getProductsAndCartItems());
 				return  Inertia::render('User/Cart/Index', ['cartItems' => $cartItems]);
 			} else {
-				return redirect()->back();
+				return redirect()->back()->with('info', "Cart was empty");
 			}
 		}
 	}
@@ -47,18 +49,19 @@ class CartController extends Controller
 		if ($user) {
 			$cartItem = CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->first();
 			if ($cartItem) {
-				$cartItem->increment('quantity');
+				$cartItem->increment('quantity', $quantity);
 			} else {
 				CartItem::create([
 					'user_id' => $user->id,
 					'product_id' => $product->id,
-					'quantity' => 1,
+					'quantity' => $quantity,
 				]);
 			}
 		} else {
+
 			$cartItems = Cart::getCookieCartItems();
 			$isProductExists = false;
-			foreach ($cartItems as $item) {
+			foreach ($cartItems as &$item) {
 				if ($item['product_id'] === $product->id) {
 					$item['quantity'] += $quantity;
 					$isProductExists = true;
@@ -77,7 +80,7 @@ class CartController extends Controller
 			Cookie::queue('cart_items', json_encode($cartItems), 60 * 24 * 30);
 		}
 
-		return redirect()->back()->with('success', 'cart added successfully');
+		return redirect()->back()->with('success', 'Added to cart successfully');
 	}
 	public function remove(Request $request, Product $product)
 	{
@@ -122,10 +125,6 @@ class CartController extends Controller
 
 		if ($user) {
 			CartItem::where(['user_id' => $request->user()->id, 'product_id' => $product->id])->update(['quantity' => $quantity]);
-
-			// return response([
-			// 	'count' => Cart::getCartItemsCount(),
-			// ]);
 		} else {
 			$cartItems = json_decode($request->cookie('cart_items', '[]'), true);
 			foreach ($cartItems as &$item) {
@@ -135,8 +134,6 @@ class CartController extends Controller
 				}
 			}
 			Cookie::queue('cart_items', json_encode($cartItems), 60 * 24 * 30);
-
-			// return response(['count' => Cart::getCountFromItems($cartItems)]);
 		}
 		return redirect()->back();
 	}

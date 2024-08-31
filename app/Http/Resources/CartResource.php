@@ -19,9 +19,12 @@ class CartResource extends JsonResource
     {
         [$products, $cartItems] = $this->resource;
 
+        $total = $products->reduce(fn(?float $carry, Product $product) => $carry + $product->price * $cartItems[$product->id]['quantity'], 0.0);
+        $total = round($total, 2);
+
         return [
             'count' => Cart::getCartItemsCount(),
-            'total' => $products->reduce(fn (?float $carry, Product $product) => $carry + $product->price * $cartItems[$product->id]['quantity']),
+            'total' => $total,
             'items' => $cartItems,
             'products' => ProductResource::collection($products)
         ];
