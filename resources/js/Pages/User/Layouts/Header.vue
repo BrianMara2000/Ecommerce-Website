@@ -59,7 +59,7 @@
               />
             </g>
           </svg>
-          <span class="sr-only">Notifications</span>
+          <!-- <span class="sr-only">Notifications</span> -->
           <div
             class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1 -end-1 dark:border-gray-900"
           >
@@ -115,6 +115,7 @@
         </div>
         <!-- Dropdown menu -->
         <div
+          v-if="auth.user"
           class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
           id="user-dropdown"
         >
@@ -160,28 +161,6 @@
             </li>
           </ul>
         </div>
-        <button
-          type="button"
-          class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-          aria-expanded="false"
-        >
-          <span class="sr-only">Open main menu</span>
-          <svg
-            class="w-5 h-5"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 17 14"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M1 1h15M1 7h15M1 13h15"
-            />
-          </svg>
-        </button>
       </div>
     </div>
   </nav>
@@ -191,8 +170,8 @@
 import { Link, usePage } from "@inertiajs/vue3";
 import { computed } from "vue";
 
-const canLogin = usePage().props.canLogin;
-const canRegister = usePage().props.canRegister;
-const auth = usePage().props.auth;
+const canLogin = computed(() => usePage().props.canLogin);
+const canRegister = computed(() => usePage().props.canRegister);
+const auth = computed(() => usePage().props.auth);
 const cart = computed(() => usePage().props.cart);
 </script>
