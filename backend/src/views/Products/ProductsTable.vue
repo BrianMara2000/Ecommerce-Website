@@ -250,13 +250,6 @@ const sortProducts = (field) => {
     sortDirection.value = "desc";
   }
 
-  // Log the state change
-  // console.log(
-  //   `${sortField.value === field ? "0" : "1"}${
-  //     sortDirection.value === "desc" ? "0" : "1"
-  //   }`
-  // );
-
   getProducts();
 };
 
