@@ -144,11 +144,9 @@
               <div class="flex sm:items-center sm:justify-center w-full">
                 <button
                   @click="decrement"
-                  :disabled="isButtonDisabled"
+                  :disabled="quantity <= 1"
                   class="group py-4 px-6 border border-gray-400 rounded-l-full bg-white transition-all duration-300 hover:bg-gray-50 hover:shadow-sm hover:shadow-gray-300"
-                  :class="
-                    isButtonDisabled ? 'bg-gray-200 cursor-not-allowed' : ''
-                  "
+                  :class="quantity <= 1 ? 'bg-gray-200 cursor-not-allowed' : ''"
                 >
                   <svg
                     class="stroke-gray-900 group-hover:stroke-black"
@@ -182,7 +180,10 @@
                 </button>
                 <input
                   inputmode="numeric"
-                  v-model="quantity"
+                  placeholder="1"
+                  :value="quantity"
+                  disabled
+                  required
                   class="font-semibold text-gray-900 cursor-pointer text-lg py-[13px] px-6 w-full sm:max-w-[118px] outline-0 border-y border-gray-400 bg-transparent placeholder:text-gray-900 text-center hover:bg-gray-50"
                 />
                 <button
@@ -221,6 +222,7 @@
                 </button>
               </div>
               <button
+                @click="addToCart(product, quantity)"
                 class="group py-4 px-5 rounded-full bg-indigo-50 text-indigo-600 font-semibold text-lg w-full flex items-center justify-center gap-2 transition-all duration-500 hover:bg-indigo-100"
               >
                 <svg
@@ -278,6 +280,8 @@
 <script setup>
 import { ref } from "vue";
 import UserLayout from "../Layouts/UserLayout.vue";
+import { useCart } from "@/utils/utils";
+import { usePage } from "@inertiajs/vue3";
 
 defineProps({
   product: {
@@ -286,7 +290,17 @@ defineProps({
   },
 });
 
-defineOptions({ layout: UserLayout });
+const quantity = ref(1);
 
-const isButtonDisabled = ref(false);
+const { addToCart } = useCart();
+
+const increment = () => {
+  quantity.value++;
+};
+
+const decrement = () => {
+  quantity.value--;
+};
+
+defineOptions({ layout: UserLayout });
 </script>
