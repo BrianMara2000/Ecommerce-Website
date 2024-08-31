@@ -76,6 +76,7 @@
                       placeholder=""
                       v-model="carts[itemId(product.id)].quantity"
                       required
+                      disabled
                     />
                     <button
                       @click.prevent="
@@ -116,7 +117,7 @@
                   class="w-full min-w-0 flex-1 space-y-4 md:order-2 md:max-w-md"
                 >
                   <a
-                    href="#"
+                    :href="route('product.view', product.slug)"
                     class="text-base font-medium text-gray-900 hover:underline dark:text-white"
                     >{{ product.title }}</a
                   >
@@ -337,12 +338,10 @@ const update = (product, quantity) => {
 };
 
 const removeProduct = (slug) => {
-  console.log("remove", slug);
   router.visit(route("cart.remove", slug), {
     method: "delete",
     onSuccess: (page) => {
       if (page.props.flash.success) {
-        console.log("removed");
         toast.success("Item removed from the cart successfully");
       }
     },
