@@ -113,40 +113,18 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
 import UserLayout from "../Layouts/UserLayout.vue";
 import Pagination from "@/Components/Pagination.vue";
-import { usePage, router } from "@inertiajs/vue3";
-import { toast } from "vue3-toastify";
+import { useCart } from "@/utils/utils";
 
 defineOptions({ layout: UserLayout });
+
+const { addToCart } = useCart();
 
 defineProps({
   products: {
     type: Object,
     required: true,
   },
-});
-
-const addToCart = (product) => {
-  console.log("added to cart");
-  router.visit(route("cart.add", product), {
-    method: "post",
-    onSuccess: (page) => {
-      console.log("Added");
-      if (page.props.flash.success) {
-        toast.success("Added to cart successfully");
-      }
-    },
-  });
-};
-
-onMounted(() => {
-  if (usePage().props.flash.info) {
-    console.log("Cart is empty");
-    toast.info(usePage().props.flash.info);
-  } else {
-    console.log("random");
-  }
 });
 </script>
