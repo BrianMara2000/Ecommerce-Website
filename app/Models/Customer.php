@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use App\Enums\AddressType;
-use App\Models\User;
-use App\Models\CustomerAddress;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
