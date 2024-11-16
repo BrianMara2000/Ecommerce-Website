@@ -44,9 +44,8 @@ const verificationLinkSent = computed(
         <PrimaryButton
           :class="{ 'opacity-25': form.processing }"
           :disabled="form.processing"
-        >
-          Resend Verification Email
-        </PrimaryButton>
+          buttonText="Resend Verification Email"
+        />
 
         <Link
           :href="route('logout')"
