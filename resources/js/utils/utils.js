@@ -18,3 +18,14 @@ export function useCart() {
     addToCart,
   };
 }
+export function useFormatDate(isoDate) {
+  const date = new Date(isoDate);
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+  return date.toLocaleString(undefined, options); // Adjusts to the user's locale
+}

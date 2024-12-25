@@ -59,6 +59,10 @@ const getShippingCountryStates = () => {
 };
 
 onMounted(() => {
+  //Remove Item when user redirect to another page
+  router.on("before", () => {
+    localStorage.removeItem("profileFormData");
+  });
   const savedForm = JSON.parse(localStorage.getItem("profileFormData"));
   if (savedForm) {
     form.first_name = savedForm.first_name || form.first_name;
@@ -125,6 +129,7 @@ function updateProfile() {
             v-model="form.first_name"
             autofocus
             autocomplete="first_name"
+            :hasError="!!errors.first_name"
           />
 
           <InputError class="mt-2" v-if="errors" :message="errors.first_name" />
@@ -140,6 +145,7 @@ function updateProfile() {
             v-model="form.last_name"
             autofocus
             autocomplete="last_name"
+            :hasError="!!errors.last_name"
           />
 
           <InputError class="mt-2" :message="errors.last_name" />
@@ -156,6 +162,7 @@ function updateProfile() {
           class="mt-1 block w-full"
           v-model="form.email"
           autocomplete="username"
+          :hasError="!!errors.email"
         />
 
         <InputError class="mt-2" :message="errors.email" />
@@ -171,6 +178,7 @@ function updateProfile() {
           class="mt-1 block w-full"
           v-model="form.phone"
           autocomplete="phone"
+          :hasError="!!errors.phone"
         />
 
         <InputError class="mt-2" :message="errors.phone" />
@@ -190,6 +198,7 @@ function updateProfile() {
           class="mt-1 block w-full"
           v-model="form.billing.address1"
           autocomplete="address1"
+          :hasError="!!errors['billing.address1']"
         />
 
         <InputError class="mt-2" :message="errors['billing.address1']" />
@@ -205,6 +214,7 @@ function updateProfile() {
           class="mt-1 block w-full"
           v-model="form.billing.address2"
           autocomplete="address2"
+          :hasError="!!errors['billing.address2']"
         />
 
         <InputError class="mt-2" :message="errors['billing.address2']" />
@@ -221,6 +231,7 @@ function updateProfile() {
             class="mt-1 block w-full"
             v-model="form.billing.city"
             autocomplete="city"
+            :hasError="!!errors['billing.city']"
           />
 
           <InputError class="mt-2" :message="errors['billing.city']" />
@@ -236,6 +247,7 @@ function updateProfile() {
             class="mt-1 block w-full"
             v-model="form.billing.zipcode"
             autocomplete="zipcode"
+            :hasError="!!errors['billing.zipcode']"
           />
 
           <InputError class="mt-2" :message="errors['billing.zipcode']" />
@@ -253,6 +265,7 @@ function updateProfile() {
             class="mt-1 block w-full"
             v-model="form.billing.country_code"
             autocomple="country"
+            :hasError="!!errors['billing.country_code']"
           >
             <option value="">Select country</option>
             <template v-for="country in countries" :key="country.code">
@@ -275,6 +288,7 @@ function updateProfile() {
             class="mt-1 block w-full"
             v-model="form.billing.state"
             autocomple="states"
+            :hasError="!!errors['billing.state']"
           >
             <option value="">Select states</option>
             <template
@@ -293,6 +307,7 @@ function updateProfile() {
             class="mt-1 block w-full"
             v-model="form.billing.state"
             autocomple="states"
+            :hasError="!!errors['billing.state']"
           ></TextInput>
 
           <InputError class="mt-2" :message="errors['billing.state']" />
@@ -329,6 +344,7 @@ function updateProfile() {
           class="mt-1 block w-full"
           v-model="form.shipping.address1"
           autocomplete="s_address1"
+          :hasError="!!errors['shipping.address1']"
         />
 
         <InputError class="mt-2" :message="errors['shipping.address1']" />
@@ -344,6 +360,7 @@ function updateProfile() {
           class="mt-1 block w-full"
           v-model="form.shipping.address2"
           autocomplete="s_address2"
+          :hasError="!!errors['shipping.address2']"
         />
 
         <InputError class="mt-2" :message="errors['shipping.address2']" />
@@ -360,6 +377,7 @@ function updateProfile() {
             class="mt-1 block w-full"
             v-model="form.shipping.city"
             autocomplete="s_city"
+            :hasError="!!errors['shipping.city']"
           />
 
           <InputError class="mt-2" :message="errors['shipping.city']" />
@@ -375,6 +393,7 @@ function updateProfile() {
             class="mt-1 block w-full"
             v-model="form.shipping.zipcode"
             autocomplete="s_zipcode"
+            :hasError="!!errors['shipping.zipcode']"
           />
 
           <InputError class="mt-2" :message="errors['shipping.zipcode']" />
@@ -392,6 +411,7 @@ function updateProfile() {
             class="mt-1 block w-full"
             v-model="form.shipping.country_code"
             autocomplete="s_country"
+            :hasError="!!errors['shipping.country_code']"
           >
             <option disabled selected="!form.shipping.country_code" value="">
               Select country
@@ -416,6 +436,7 @@ function updateProfile() {
             class="mt-1 block w-full"
             v-model="form.shipping.state"
             autocomple="s_states"
+            :hasError="!!errors['shipping.state']"
           >
             <option value="">Select states</option>
             <template
@@ -436,6 +457,7 @@ function updateProfile() {
             class="mt-1 block w-full"
             v-model="form.shipping.state"
             autocomple="s_states"
+            :hasError="!!errors['shipping.state']"
           ></TextInput>
 
           <InputError class="mt-2" :message="errors['shipping.state']" />
