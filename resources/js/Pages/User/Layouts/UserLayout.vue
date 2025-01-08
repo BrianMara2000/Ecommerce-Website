@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-screen flex flex-col">
+  <div class="w-full h-screen flex flex-col font-manrope">
     <Header />
     <div class="flex-1 bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
       <slot />

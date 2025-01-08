@@ -29,3 +29,7 @@ export function useFormatDate(isoDate) {
   };
   return date.toLocaleString(undefined, options); // Adjusts to the user's locale
 }
+
+export function useCapitalizedStatus(status) {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}

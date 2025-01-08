@@ -43,11 +43,18 @@
             <td class="p-4">$ {{ order.total_price }}</td>
             <td class="p-4">{{ order.items.length }} item(s)</td>
             <td class="p-4">
-              <span
-                class="font-bold"
-                :class="order.isPaid ? 'text-green-600' : 'text-yellow-600'"
-                >● {{ order.status.toUpperCase() }}</span
+              <div
+                class="w-[80%] text-sm rounded-md px-1 py-2 flex items-center justify-center"
+                :class="{
+                  'bg-emerald-500 text-white': order.status === 'paid',
+                  'bg-yellow-500 text-white': order.status === 'unpaid',
+                  'bg-gray-500 text-white': order.status === 'shipped',
+                  'bg-purple-500 text-white': order.status === 'completed',
+                  'bg-red-500 text-white': order.status === 'cancelled',
+                }"
               >
+                {{ capitalizedStatus(order.status) }}
+              </div>
             </td>
             <td class="p-4 flex justify-center">
               <Menu as="div" class="relative inline-block text-left">
@@ -81,7 +88,6 @@
                               : 'text-gray-900',
                             'group flex w-full items-center rounded-md px-2 py-2 text-sm',
                           ]"
-                          @click="editProduct(product)"
                         >
                           <DocumentIcon
                             :active="active"
@@ -93,7 +99,7 @@
                       </MenuItem>
                     </div>
 
-                    <div v-if="!order.isPaid" class="px-1 py-1">
+                    <div v-if="order.status === 'unpaid'" class="px-1 py-1">
                       <MenuItem v-slot="{ active }">
                         <button
                           :class="[
@@ -155,7 +161,7 @@
                   ? ' cursor-not-allowed'
                   : 'rounded-r-md '
                 : '',
-              !link.url ? 'bg-gray-100 text-gray-700 ' : 'cursor-pointer',
+              !link.url ? ' ' : 'bg-gray-100 text-gray-700 cursor-pointer',
             ]"
             v-html="link.label"
           ></a>
@@ -176,13 +182,14 @@ import {
   CreditCardIcon,
 } from "@heroicons/vue/24/outline";
 import { Link } from "@inertiajs/vue3";
-import { useFormatDate } from "@/utils/utils";
+import { useFormatDate, useCapitalizedStatus } from "@/utils/utils";
 
 defineOptions({ layout: UserLayout });
 
 const orders = computed(() => usePage().props.orders);
 
 const formatDate = (date) => useFormatDate(date);
+const capitalizedStatus = (stats) => useCapitalizedStatus(stats);
 
 const payOrder = (id) => {
   router.post(route("checkout.order", id));

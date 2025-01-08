@@ -39,6 +39,15 @@
       </span>
       <span class="text-base">Reports</span>
     </router-link>
+    <router-link
+      :to="{ name: 'app.orders' }"
+      class="flex items-center hover:bg-black/30 transition-colors p-2 rounded mb-2 outline-none"
+    >
+      <span class="mr-2 text-gray-300">
+        <ShoppingCartIcon class="w-5" />
+      </span>
+      <span class="text-base">Orders</span>
+    </router-link>
   </div>
 </template>
 
@@ -48,6 +57,7 @@ import {
   UsersIcon,
   Bars3Icon,
   ChartBarIcon,
+  ShoppingCartIcon,
 } from "@heroicons/vue/24/outline";
 </script>
 

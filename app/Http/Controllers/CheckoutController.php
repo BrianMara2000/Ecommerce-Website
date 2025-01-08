@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\OrderStatus;
-use App\Enums\PaymentStatus;
+use Exception;
+use App\Models\User;
 use Inertia\Inertia;
 use App\Helpers\Cart;
+use App\Models\Order;
+use App\Models\Payment;
+use App\Models\CartItem;
+use App\Models\OrderItem;
+use App\Enums\OrderStatus;
+use App\Mail\NewOrderEmail;
+use App\Enums\PaymentStatus;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\CartItem;
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Payment;
-use Exception;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -116,9 +119,14 @@ class CheckoutController extends Controller
             $order->status = OrderStatus::Paid;
             $order->update();
 
+            $adminUsers = User::where('is_admin', 1)->get();
+
+            foreach ([...$adminUsers, $order->user] as $user) {
+                Mail::to($user)->send(new NewOrderEmail($order, $user));
+            }
 
             $customer = $stripe->customers->retrieve($session->customer);
-            // dd($user);
+
             CartItem::where(['user_id' => $user->id])->delete();
 
 

@@ -5,12 +5,14 @@
       <div class="flex items-center mb-4">
         <h2 class="text-2xl font-bold mr-5">Order Number #{{ order.id }}</h2>
         <div
-          class="px-2 py-1 rounded-xl text-sm font-bold"
-          :class="
-            order.isPaid
-              ? 'text-green-600 bg-green-50'
-              : 'text-yellow-600 bg-yellow-50  '
-          "
+          class="px-3 py-1 rounded-lg text-sm font-bold"
+          :class="{
+            'text-emerald-500 bg-emerald-100': order.status === 'paid',
+            'text-yellow-500 bg-yellow-100': order.status === 'unpaid',
+            'text-gray-900 bg-gray-200': order.status === 'shipped',
+            'text-purple-500 bg-purple-100': order.status === 'completed',
+            'text-red-500 bg-red-100': order.status === 'cancelled',
+          }"
         >
           {{ capitalizedStatus }}
         </div>
@@ -23,11 +25,11 @@
       <div
         v-for="(item, index) in order.items"
         :key="item.id"
-        class="px-0 lg:px-4 divide-y divide-gray-200 bg-slate-50"
+        class="px-0 lg:px-4 divide-y"
       >
         <!-- Product Item -->
         <div
-          class="flex py-4 justify-between items-center"
+          class="flex justify-between items-center mb-4 border rounded-lg p-6"
           :class="index === order.items.length - 1 ? '' : 'border-b-2 mb-2'"
         >
           <div
@@ -69,7 +71,7 @@
         </div>
       </div>
       <PrimaryButton
-        v-if="!order.isPaid"
+        v-if="order.status === 'unpaid'"
         class="flex items-center justify-center mt-6 w-full"
         @click="payOrder(order)"
         ><CreditCardIcon class="mr-2 h-5 w-5" aria-hidden="true" /> Pay

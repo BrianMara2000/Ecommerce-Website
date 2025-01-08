@@ -5,8 +5,10 @@ import Login from "../views/Login.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import ResetPassword from "../views/ResetPassword.vue";
 import Products from "../views/Products/Products.vue";
+import Orders from "../views/Orders/Orders.vue";
 import NotFound from "../views/NotFound.vue";
 import store from "../store";
+import OrderDetails from "../views/Orders/OrderDetails.vue";
 
 const routes = [
   {
@@ -27,6 +29,16 @@ const routes = [
         path: "products",
         name: "app.products",
         component: Products,
+      },
+      {
+        path: "orders",
+        name: "app.orders",
+        component: Orders,
+      },
+      {
+        path: "orders/:id",
+        name: "app.orders.view",
+        component: OrderDetails,
       },
     ],
   },

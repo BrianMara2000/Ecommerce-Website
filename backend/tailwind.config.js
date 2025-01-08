@@ -19,6 +19,9 @@ module.exports = {
         "fade-in-down": "fade-in-down 0.2s  ease-in-out both",
       },
     },
+    fontFamily: {
+      manrope: ["Manrope", "sans-serif"],
+    },
   },
   plugins: [require("@tailwindcss/forms")],
 };
