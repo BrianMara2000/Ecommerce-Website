@@ -32,14 +32,14 @@
         <tr class="animate-fade-in-down">
           <TableHeaderCell
             @click="sortProducts"
-            class="border-b-2 p-2 text-left"
+            class="border-b-2 p-2 text-left w-[8%]"
             field="id"
             :sort-field="sortField"
             :sort-direction="sortDirection"
             >ID</TableHeaderCell
           >
           <TableHeaderCell
-            class="border-b-2 p-2 text-left"
+            class="border-b-2 p-2 text-left w-[10%]"
             field=""
             :sort-field="sortField"
             :sort-direction="sortDirection"
@@ -63,7 +63,7 @@
           >
           <TableHeaderCell
             @click="sortProducts"
-            class="border-b-2 p-2 text-left"
+            class="border-b-2 p-2 text-left w-[20%]"
             field="updated_at"
             :sort-field="sortField"
             :sort-direction="sortDirection"
@@ -80,7 +80,10 @@
         </tr>
       </tbody>
       <tbody v-else>
-        <tr v-for="(product, index) of products.data">
+        <tr
+          v-for="(product, index) of products.data"
+          class="hover:hover:bg-purple-100 transition-all"
+        >
           <!-- class="animate-fade-in-down"
           :style="{ 'animation-delay': `${index * 0.05}s`, 'z-index': '0' }" -->
           <td class="border-b p-2">{{ product.id }}</td>
@@ -92,10 +95,10 @@
           >
             {{ product.title }}
           </td>
-          <td class="border-b p-2">{{ product.price }}</td>
+          <td class="border-b p-2">$ {{ product.price }}</td>
           <td class="border-b p-2">{{ product.updated_at }}</td>
           <td class="border-b p-2">
-            <Menu as="div" class="relative inline-block text-left">
+            <Menu as="div" class="relative text-left flex justify-center">
               <div>
                 <MenuButton
                   class="inline-flex items-center justify-center rounded-full w-10 h-10 bg-black bg-opacity-0 text-sm font-medium text-white hover:bg-opacity-5 focus:bg-opacity-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
