@@ -9,6 +9,7 @@ import Orders from "../views/Orders/Orders.vue";
 import NotFound from "../views/NotFound.vue";
 import store from "../store";
 import OrderDetails from "../views/Orders/OrderDetails.vue";
+import Users from "../views/Users/Users.vue";
 
 const routes = [
   {
@@ -39,6 +40,12 @@ const routes = [
         path: "orders/:id",
         name: "app.orders.view",
         component: OrderDetails,
+      },
+
+      {
+        path: "users",
+        name: "app.users",
+        component: Users,
       },
     ],
   },
