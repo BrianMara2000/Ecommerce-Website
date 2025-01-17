@@ -65,31 +65,68 @@
                 </button>
               </header>
               <form @submit.prevent="onSubmit">
-                <div class="bg-white px-4 pt-5 pb-4">
-                  <CustomInput
-                    class="mb-2"
-                    v-model="product.title"
-                    label="Product Title"
-                  />
-                  <CustomInput
-                    type="file"
-                    class="mb-2"
-                    label="Product Image"
-                    @change="(file) => (product.image = file)"
-                  />
-                  <CustomInput
-                    type="textarea"
-                    class="mb-2"
-                    v-model="product.description"
-                    label="Description"
-                  />
-                  <CustomInput
-                    type="number"
-                    class="mb-2"
-                    v-model="product.price"
-                    label="Price"
-                    prepend="$"
-                  />
+                <div v-if="!loading" class="bg-white px-4 pt-5 pb-4">
+                  <div class="mb-2">
+                    <CustomInput
+                      class="mb-2"
+                      v-model="product.title"
+                      label="Product Title"
+                    />
+                    <InputError
+                      v-if="errors.title"
+                      v-for="(error, index) in errors.title"
+                      :key="index"
+                      class="mt-2"
+                      :message="error"
+                    />
+                  </div>
+
+                  <div class="mb-2">
+                    <CustomInput
+                      type="file"
+                      class="mb-2"
+                      label="Product Image"
+                      @change="(file) => (product.image = file)"
+                    />
+                    <InputError
+                      v-if="errors.file"
+                      v-for="(error, index) in errors.file"
+                      :key="index"
+                      class="mt-2"
+                      :message="error"
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <CustomInput
+                      type="textarea"
+                      class="mb-2"
+                      v-model="product.description"
+                      label="Description"
+                    />
+                    <InputError
+                      v-if="errors.description"
+                      v-for="(error, index) in errors.description"
+                      :key="index"
+                      class="mt-2"
+                      :message="error"
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <CustomInput
+                      type="number"
+                      class="mb-2"
+                      v-model="product.price"
+                      label="Price"
+                      prepend="$"
+                    />
+                    <InputError
+                      v-if="errors.price"
+                      v-for="(error, index) in errors.price"
+                      :key="index"
+                      class="mt-2"
+                      :message="error"
+                    />
+                  </div>
                 </div>
                 <footer
                   class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse"
@@ -130,8 +167,10 @@ import {
 import Spinner from "../../components/core/Spinner.vue";
 import store from "../../store";
 import CustomInput from "../../components/core/CustomInput.vue";
+import InputError from "../../components/InputError.vue";
 
 const loading = ref(false);
+const errors = ref({});
 
 const props = defineProps({
   modelValue: Boolean,
@@ -158,6 +197,9 @@ const show = computed({
 
 function closeModal() {
   show.value = false;
+  if (errors.value) {
+    errors.value = {};
+  }
   emit("close");
 }
 
@@ -173,22 +215,23 @@ onUpdated(() => {
 
 const onSubmit = () => {
   loading.value = true;
-  if (product.value.id) {
-    store.dispatch("updateProduct", product.value).then((response) => {
-      loading.value = false;
-      if (response.status === 200) {
-        store.dispatch("getProducts");
-        closeModal();
+
+  const action = product.value.id
+    ? store.dispatch("updateProduct", product.value)
+    : store.dispatch("createProduct", product.value);
+
+  action
+    .then(() => {
+      store.dispatch("getProducts");
+      closeModal();
+    })
+    .catch((error) => {
+      if (error.response.status === 422) {
+        errors.value = error.response.data.errors;
       }
+    })
+    .finally(() => {
+      loading.value = false; // Always stop loading
     });
-  } else {
-    store.dispatch("createProduct", product.value).then((response) => {
-      loading.value = false;
-      if (response.status === 201) {
-        store.dispatch("getProducts");
-        closeModal();
-      }
-    });
-  }
 };
 </script>

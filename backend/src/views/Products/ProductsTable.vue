@@ -215,6 +215,7 @@ import {
   PencilIcon,
   TrashIcon,
 } from "@heroicons/vue/24/outline";
+import Swal from "sweetalert2";
 
 const perPage = ref(PRODUCTS_PER_PAGE);
 const search = ref("");
@@ -261,11 +262,30 @@ function editProduct(product) {
 }
 
 function deleteProduct(product) {
-  if (!confirm("Are you sure you want to delete this product?")) {
-    return;
-  }
-  store.dispatch("deleteProduct", product.id).then((res) => {
-    store.dispatch("getProducts");
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      store
+        .dispatch("deleteProduct", product.id)
+        .then(() => {
+          Swal.fire("Deleted!", "Product has been deleted.", "success");
+          getProducts();
+        })
+        .catch((error) => {
+          Swal.fire(
+            "Error!",
+            "There was an error deleting the product.",
+            "error"
+          );
+        });
+    }
   });
 }
 </script>
