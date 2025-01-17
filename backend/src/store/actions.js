@@ -112,3 +112,42 @@ export function getOrders(
 export function getOrder({}, id) {
   return axiosClient.get(`/orders/${id}`);
 }
+
+export function getUsers(
+  { commit },
+  { url = null, sort_field, sort_direction, search = "", perPage = 10 } = {}
+) {
+  commit("setUsers", [true]);
+  url = url || "/users";
+  return axiosClient
+    .get(url, {
+      params: {
+        search,
+        sort_field,
+        sort_direction,
+        per_page: perPage,
+      },
+    })
+    .then((res) => {
+      commit("setUsers", [false, res.data]);
+    })
+    .catch(() => {
+      commit("setUsers", [false]);
+    });
+}
+
+export function getUserById({}, id) {
+  return axiosClient.get(`/users/${id}`);
+}
+
+export function createUser({ commit }, user) {
+  return axiosClient.post("/users", user);
+}
+
+export function updateUser({ commit }, user) {
+  return axiosClient.put(`/users/${user.id}`, user);
+}
+
+export function deleteUser({ commit }, id) {
+  return axiosClient.delete(`/users/${id}`);
+}

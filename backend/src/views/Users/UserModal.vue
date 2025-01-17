@@ -39,9 +39,9 @@
                   class="text-lg leading-6 font-medium text-gray-900"
                 >
                   {{
-                    product.id
-                      ? `Update Product: "${props.product.title}" `
-                      : "Create new product"
+                    user.id
+                      ? `Update user: "${props.user.name}" `
+                      : "Create new admin"
                   }}
                 </DialogTitle>
                 <button
@@ -67,61 +67,58 @@
               <form @submit.prevent="onSubmit">
                 <div v-if="!loading" class="bg-white px-4 pt-5 pb-4">
                   <div class="mb-2">
-                    <CustomInput
-                      class="mb-2"
-                      v-model="product.title"
-                      label="Product Title"
-                    />
+                    <label for="User Name" class="text-sm">Name</label>
+                    <CustomInput class="mb-2" v-model="user.name" />
                     <InputError
-                      v-if="errors.title"
-                      v-for="(error, index) in errors.title"
+                      v-if="errors.name"
+                      v-for="(error, index) in errors.name"
                       :key="index"
                       class="mt-2"
                       :message="error"
                     />
                   </div>
+                  <div class="mb-2">
+                    <label for="User Email" class="text-sm">Email</label>
 
-                  <div class="mb-2">
                     <CustomInput
-                      type="file"
+                      tyoe="email"
                       class="mb-2"
-                      label="Product Image"
-                      @change="(file) => (product.image = file)"
+                      v-model="user.email"
                     />
+
                     <InputError
-                      v-if="errors.file"
-                      v-for="(error, index) in errors.file"
+                      v-if="errors.email"
+                      v-for="(error, index) in errors.email"
                       :key="index"
                       class="mt-2"
                       :message="error"
                     />
                   </div>
                   <div class="mb-2">
-                    <CustomInput
-                      type="textarea"
-                      class="mb-2"
-                      v-model="product.description"
-                      label="Description"
-                    />
+                    <label for="Phone Number" class="text-sm">Phone</label>
+
+                    <CustomInput class="mb-2" v-model="user.phone" />
+
                     <InputError
-                      v-if="errors.description"
-                      v-for="(error, index) in errors.description"
+                      v-if="errors.phone"
+                      v-for="(error, index) in errors.phone"
                       :key="index"
                       class="mt-2"
                       :message="error"
                     />
                   </div>
                   <div class="mb-2">
+                    <label for="password" class="text-sm">Password</label>
+
                     <CustomInput
-                      type="number"
+                      type="password"
                       class="mb-2"
-                      v-model="product.price"
-                      label="Price"
-                      prepend="$"
+                      v-model="user.password"
                     />
+
                     <InputError
-                      v-if="errors.price"
-                      v-for="(error, index) in errors.price"
+                      v-if="errors.password"
+                      v-for="(error, index) in errors.password"
                       :key="index"
                       class="mt-2"
                       :message="error"
@@ -129,21 +126,32 @@
                   </div>
                 </div>
                 <footer
-                  class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse"
+                  class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse justify-between"
                 >
-                  <button
-                    type="submit"
-                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  >
-                    Submit
-                  </button>
+                  <div class="flex flex-row-reverse">
+                    <button
+                      type="submit"
+                      class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                    >
+                      Save changes
+                    </button>
+                    <button
+                      type="button"
+                      class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                      @click="closeModal"
+                      ref="cancelButtonRef"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                   <button
                     type="button"
-                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                    @click="closeModal"
-                    ref="cancelButtonRef"
+                    v-if="user.id"
+                    @click="deleteUser(user)"
+                    class="mt-3 w-full inline-flex justify-center text-red-500 rounded-md py-2 text-base font-medium sm:mt-0 sm:w-auto sm:text-sm"
                   >
-                    Cancel
+                    <TrashIcon class="mr-2 h-5 w-5" />
+                    <span>Delete</span>
                   </button>
                 </footer>
               </form>
@@ -164,28 +172,31 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/vue";
+import { TrashIcon } from "@heroicons/vue/24/outline";
 import Spinner from "../../components/core/Spinner.vue";
 import store from "../../store";
 import CustomInput from "../../components/core/CustomInput.vue";
 import InputError from "../../components/InputError.vue";
+import Swal from "sweetalert2";
 
 const loading = ref(false);
+
 const errors = ref({});
 
 const props = defineProps({
   modelValue: Boolean,
-  product: {
+  user: {
     required: true,
     type: Object,
   },
 });
 
-const product = ref({
-  id: props.product.id,
-  title: props.product.title,
-  image: props.product.image,
-  description: props.product.description,
-  price: props.product.price,
+const user = ref({
+  id: props.user.id,
+  name: props.user.name,
+  email: props.user.email,
+  password: props.user.password,
+  phone: props.user.phone,
 });
 
 const emit = defineEmits(["update:modelValue", "close"]);
@@ -204,25 +215,25 @@ function closeModal() {
 }
 
 onUpdated(() => {
-  product.value = {
-    id: props.product.id,
-    title: props.product.title,
-    image: props.product.image,
-    description: props.product.description,
-    price: props.product.price,
+  user.value = {
+    id: props.user.id,
+    name: props.user.name,
+    email: props.user.email,
+    password: props.user.password,
+    phone: props.user.phone,
+    date: props.user.created_at,
   };
 });
 
 const onSubmit = () => {
   loading.value = true;
-
-  const action = product.value.id
-    ? store.dispatch("updateProduct", product.value)
-    : store.dispatch("createProduct", product.value);
+  const action = user.value.id
+    ? store.dispatch("updateUser", user.value)
+    : store.dispatch("createUser", user.value);
 
   action
     .then(() => {
-      store.dispatch("getProducts");
+      store.dispatch("getUsers");
       closeModal();
     })
     .catch((error) => {
@@ -233,5 +244,31 @@ const onSubmit = () => {
     .finally(() => {
       loading.value = false; // Always stop loading
     });
+};
+
+const deleteUser = (user) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      store
+        .dispatch("deleteUser", user.id)
+        .then(() => {
+          Swal.fire("Deleted!", "User has been deleted.", "success");
+          closeModal();
+          store.dispatch("getUsers");
+        })
+        .catch((error) => {
+          closeModal();
+          Swal.fire("Error!", "There was an error deleting the user.", "error");
+        });
+    }
+  });
 };
 </script>

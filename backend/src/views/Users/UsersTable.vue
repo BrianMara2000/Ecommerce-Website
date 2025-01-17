@@ -4,7 +4,7 @@
       <div class="flex items-center">
         <span class="whitespace-nowrap mr-3">Per page</span>
         <select
-          @change="getProducts(null)"
+          @change="getUsers(null)"
           v-model="perPage"
           class="appearance-none relative block w-24 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
         >
@@ -14,90 +14,96 @@
           <option value="50">50</option>
           <option value="100">100</option>
         </select>
-        <span class="ml-3">Found {{ products.total }} products</span>
+        <span class="ml-3">Found {{ users.total }} users</span>
       </div>
       <div>
         <input
           type="text"
           v-model="search"
-          @change="getProducts(null)"
+          @change="getUsers(null)"
           class="appearance-none relative block w-48 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-          placeholder="Type to search products"
+          placeholder="Type to search users"
         />
       </div>
     </div>
 
     <table class="table-auto w-full">
       <thead>
-        <tr class="animate-fade-in-down">
+        <tr class="animate-fade-in-down text-center">
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortUsers"
             class="border-b-2 p-2 text-left w-[8%]"
             field="id"
             :sort-field="sortField"
             :sort-direction="sortDirection"
-            >ID</TableHeaderCell
+            >User ID</TableHeaderCell
           >
           <TableHeaderCell
+            @click="sortUsers"
             class="border-b-2 p-2 text-left w-[10%]"
-            field=""
+            field="name"
             :sort-field="sortField"
             :sort-direction="sortDirection"
-            >Image</TableHeaderCell
+            >Name</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortUsers"
+            class="border-b-2 p-2 text-left w-[15%]"
+            field="email"
+            :sort-field="sortField"
+            :sort-direction="sortDirection"
+            >Email</TableHeaderCell
+          >
+          <TableHeaderCell
+            @click="sortUsers"
+            class="border-b-2 p-2 text-left w-[15%]"
+            field="phone"
+            :sort-field="sortField"
+            :sort-direction="sortDirection"
+            >Phone</TableHeaderCell
+          >
+          <TableHeaderCell
+            @click="sortUsers"
             class="border-b-2 p-2 text-left"
-            field="title"
+            field="created_at"
             :sort-field="sortField"
             :sort-direction="sortDirection"
-            >Title</TableHeaderCell
+            >Date added</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortUsers"
             class="border-b-2 p-2 text-left"
-            field="price"
+            field="isAdmin"
             :sort-field="sortField"
             :sort-direction="sortDirection"
-            >Price</TableHeaderCell
+            >Role</TableHeaderCell
           >
-          <TableHeaderCell
-            @click="sortProducts"
-            class="border-b-2 p-2 text-left w-[20%]"
-            field="updated_at"
-            :sort-field="sortField"
-            :sort-direction="sortDirection"
-            >Last Updated</TableHeaderCell
+          <TableHeaderCell field="actions" class="text-center w-[20%]"
+            >Actions</TableHeaderCell
           >
-          <TableHeaderCell field="actions">Actions</TableHeaderCell>
         </tr>
       </thead>
-      <tbody v-if="products.loading">
+      <tbody v-if="users.loading">
         <tr>
-          <td colspan="6">
-            <Spinner v-if="products.loading" class="mt-3" />
+          <td colspan="7">
+            <Spinner v-if="users.loading" class="mt-3" />
           </td>
         </tr>
       </tbody>
       <tbody v-else>
         <tr
-          v-for="(product, index) of products.data"
+          v-for="(user, index) of users.data"
           class="hover:hover:bg-purple-100 transition-all"
         >
           <!-- class="animate-fade-in-down"
           :style="{ 'animation-delay': `${index * 0.05}s`, 'z-index': '0' }" -->
-          <td class="border-b p-2">{{ product.id }}</td>
-          <td class="border-b p-2">
-            <img class="w-16" :src="product.image_url" :alt="product.title" />
-          </td>
-          <td
-            class="border-b p-2 max-w-[200px] whitespace-nowrap overflow-hidden text-ellipsis"
-          >
-            {{ product.title }}
-          </td>
-          <td class="border-b p-2">$ {{ product.price }}</td>
-          <td class="border-b p-2">{{ product.updated_at }}</td>
-          <td class="border-b p-2">
+          <td class="border-b pl-6 p-2">{{ user.id }}</td>
+          <td class="border-b p-2">{{ user.name }}</td>
+          <td class="border-b p-2">{{ user.email }}</td>
+          <td class="border-b p-2">{{ user.phone }}</td>
+          <td class="border-b p-2">{{ formatDate(user.created_at) }}</td>
+          <td class="border-b p-2">{{ user.is_admin ? "Admin" : "User" }}</td>
+          <td class="border-b p-2 flex items-center justify-center">
             <Menu as="div" class="relative text-left flex justify-center">
               <div>
                 <MenuButton
@@ -127,7 +133,7 @@
                           active ? 'bg-violet-500 text-white' : 'text-gray-900',
                           'group flex w-full items-center rounded-md px-2 py-2 text-sm',
                         ]"
-                        @click="editProduct(product)"
+                        @click="editUser(user)"
                       >
                         <PencilIcon
                           :active="active"
@@ -146,7 +152,7 @@
                           active ? 'bg-violet-500 text-white' : 'text-gray-900',
                           'group flex w-full items-center rounded-md px-2 py-2 text-sm',
                         ]"
-                        @click="deleteProduct(product)"
+                        @click="deleteUser(user)"
                       >
                         <TrashIcon
                           :active="active"
@@ -165,23 +171,19 @@
       </tbody>
     </table>
     <div
-      v-if="!products.loading"
-      :class="!products.data.length ? 'justify-center' : 'justify-between'"
+      v-if="!users.loading"
+      :class="!users.data.length ? 'justify-center' : 'justify-between'"
       class="flex items-center mt-5"
     >
-      <span class="text-center" v-if="!products.data.length"
-        >No products found</span
-      >
-      <span v-else>
-        Showing from {{ products.from }} to {{ products.to }}
-      </span>
+      <span class="text-center" v-if="!users.data.length">No users found</span>
+      <span v-else> Showing from {{ users.from }} to {{ users.to }} </span>
       <nav
-        v-if="products.total > products.limit"
+        v-if="users.total > users.limit"
         class="relative z-0 inline-flex justify-center rounded-md shadow-sm -space-x-px"
         aria-label="Pagination"
       >
         <a
-          v-for="(link, i) of products.links"
+          v-for="(link, i) of users.links"
           :key="i"
           :disabled="!link.url"
           href="#"
@@ -192,9 +194,18 @@
             link.active
               ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
               : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50',
-            i === 0 ? 'rounded-l-md' : '',
-            i === products.links.length - 1 ? 'rounded-r-md' : '',
-            !link.url ? 'bg-gray-100 text-gray-700' : '',
+            i === 0
+              ? !users.prev_page_url
+                ? ' cursor-not-allowed'
+                : 'rounded-r-md '
+              : '',
+            ,
+            i === users.links.length - 1
+              ? !users.next_page_url
+                ? ' cursor-not-allowed'
+                : 'rounded-r-md '
+              : '',
+            !link.url ? ' ' : 'bg-gray-100 text-gray-700 cursor-pointer',
           ]"
           v-html="link.label"
         ></a>
@@ -207,7 +218,7 @@
 import { computed, onMounted, ref } from "vue";
 import Spinner from "../../components/core/Spinner.vue";
 import store from "../../store";
-import { PRODUCTS_PER_PAGE } from "../../constants";
+import { USERS_PER_PAGE } from "../../constants";
 import TableHeaderCell from "../../components/core/table/TableHeaderCell.vue";
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import {
@@ -217,20 +228,33 @@ import {
 } from "@heroicons/vue/24/outline";
 import Swal from "sweetalert2";
 
-const perPage = ref(PRODUCTS_PER_PAGE);
+const perPage = ref(USERS_PER_PAGE);
 const search = ref("");
-const products = computed(() => store.state.products);
+const users = computed(() => store.state.users);
+
 const sortField = ref("updated_at");
 const sortDirection = ref("desc");
+
+const formatDate = (isoDate) => {
+  const date = new Date(isoDate);
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+  return date.toLocaleString(undefined, options); // Adjusts to the user's locale
+};
 
 const emit = defineEmits(["clickEdit"]);
 
 onMounted(() => {
-  getProducts();
+  getUsers();
 });
 
-const getProducts = (url = null) => {
-  store.dispatch("getProducts", {
+const getUsers = (url = null) => {
+  store.dispatch("getUsers", {
     url,
     sort_field: sortField.value,
     sort_direction: sortDirection.value,
@@ -239,29 +263,11 @@ const getProducts = (url = null) => {
   });
 };
 
-const getForPage = (e, link) => {
-  if (!link.url || link.active) {
-    return;
-  }
-  getProducts(link.url);
+const editUser = (user) => {
+  emit("clickEdit", user);
 };
 
-const sortProducts = (field) => {
-  if (field === sortField.value) {
-    sortDirection.value = sortDirection.value === "desc" ? "asc" : "desc";
-  } else {
-    sortField.value = field;
-    sortDirection.value = "desc";
-  }
-
-  getProducts();
-};
-
-function editProduct(product) {
-  emit("clickEdit", product);
-}
-
-function deleteProduct(product) {
+const deleteUser = (user) => {
   Swal.fire({
     title: "Are you sure?",
     text: "You won't be able to revert this!",
@@ -273,19 +279,33 @@ function deleteProduct(product) {
   }).then((result) => {
     if (result.isConfirmed) {
       store
-        .dispatch("deleteProduct", product.id)
+        .dispatch("deleteUser", user.id)
         .then(() => {
-          Swal.fire("Deleted!", "Product has been deleted.", "success");
-          getProducts();
+          Swal.fire("Deleted!", "User has been deleted.", "success");
+          getUsers();
         })
         .catch((error) => {
-          Swal.fire(
-            "Error!",
-            "There was an error deleting the product.",
-            "error"
-          );
+          Swal.fire("Error!", "There was an error deleting the user.", "error");
         });
     }
   });
-}
+};
+
+const getForPage = (e, link) => {
+  if (!link.url || link.active) {
+    return;
+  }
+  getUsers(link.url);
+};
+
+const sortUsers = (field) => {
+  if (field === sortField.value) {
+    sortDirection.value = sortDirection.value === "desc" ? "asc" : "desc";
+  } else {
+    sortField.value = field;
+    sortDirection.value = "desc";
+  }
+
+  getUsers();
+};
 </script>

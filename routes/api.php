@@ -4,6 +4,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 
@@ -16,6 +17,8 @@ Route::middleware('auth:sanctum', 'admin')
         Route::get('/orders/statuses', [OrderController::class, 'getStatuses']);
         Route::put('/orders/change-status/{order}/{status}', [OrderController::class, 'updateStatus']);
         Route::apiResource('/orders', OrderController::class);
+        Route::apiResource('/users', UserController::class);
+        // Route::post('/users', [UserController::class, 'store']);
     });
 
 Route::post('/login', [AuthController::class, 'login']);
