@@ -137,7 +137,7 @@
           </p>
           <p class="flex items-center text-gray-700 text-sm mb-3">
             <strong>Country &ensp; : &ensp; </strong
-            ><span> {{ order.customer?.shipping_address.country }}</span>
+            ><span> {{ order.customer?.shipping_address.country.name }}</span>
           </p>
           <p class="flex items-center text-gray-700 text-sm mb-3">
             <strong>State &ensp; : &ensp; </strong
@@ -164,7 +164,7 @@
           </p>
           <p class="flex items-center text-gray-700 text-sm mb-3">
             <strong>Country &ensp; : &ensp; </strong
-            ><span> {{ order.customer?.billing_address.country }}</span>
+            ><span> {{ order.customer?.billing_address.country.name }}</span>
           </p>
           <p class="flex items-center text-gray-700 text-sm mb-3">
             <strong>State &ensp; : &ensp; </strong

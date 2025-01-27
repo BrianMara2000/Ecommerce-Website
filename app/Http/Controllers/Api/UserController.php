@@ -23,11 +23,14 @@ class UserController extends Controller
         $sortField = request('sort_field', 'updated_at');
         $sortDirection = request('sort_direction', 'desc');
 
-        $query = User::query();
+        $query = User::query()->join('customers', 'users.id', '=', 'customers.user_id')
+            ->select('users.*', 'customers.phone');
         $query->orderBy($sortField, $sortDirection);
         if ($search) {
-            $query->where('id', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%");
+            $query->where('users.id', 'like', "%{$search}%")
+                ->orWhere('users.name', 'like', "%{$search}%")
+                ->orWhere('users.email', 'like', "%{$search}%")
+                ->orWhere('customers.phone', 'like', "%{$search}%");
         }
         return UserListResource::collection($query->paginate($perPage));
     }
@@ -101,12 +104,15 @@ class UserController extends Controller
 
             $user->update($data);
 
-            if (isset($data['phone'])) {
-                $user->customer()->updateOrCreate(
-                    [], // Match the existing customer (based on the hasOne relationship)
-                    ['phone' => $data['phone']] // Update or set the phone field
-                );
-            }
+            $names = explode(" ", $user->name);
+            $first_name = $names[0];
+            $last_name = $names[1] ?? '';
+
+            $user->customer()->update([
+                'first_name' => $first_name,
+                'last_name' => $last_name,
+                'phone' => $data['phone'] ?? $user->customer->phone,
+            ]);
 
             return response()->json([
                 'data' =>  new UserResource($user),
@@ -119,9 +125,6 @@ class UserController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-
-
-        return new UserResource($user);
     }
 
     /**

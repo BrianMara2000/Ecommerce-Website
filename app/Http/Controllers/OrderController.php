@@ -28,21 +28,18 @@ class OrderController extends Controller
 
     public function view(Request $request, Order $order)
     {
-        $user = request()->user();
+        $user = $request->user();
 
         $order = Order::query()
-            ->with('items')
-            ->where([
-                'id' => $order->id,
-            ])
+            ->with(['items' => function ($query) {
+                $query->whereHas('product');
+            }, 'items.product', 'user.customer'])
+            ->where('id', $order->id)
             ->first();
-
 
         if ($order->created_by !== $user->id) {
             abort(403, "You're not authorized to view this order.");
         }
-
-        $order = Order::with(['items.product'])->where('id', $order->id)->first();
 
         return Inertia::render('User/Order/View', ['order' => $order]);
     }

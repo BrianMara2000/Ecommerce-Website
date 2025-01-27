@@ -25,7 +25,9 @@ class OrderListResource extends JsonResource
                 'first_name' => $this->user->customer->first_name,
                 'last_name' => $this->user->customer->last_name,
             ],
-            'number_of_items' => $this->items->count(),
+            'number_of_items' => $this->items->filter(function ($item) {
+                return $item->product !== null;
+            })->count(),
             'isPaid' => $this->isPaid,
             'items' => $this->items,
         ];
