@@ -10,6 +10,7 @@ import NotFound from "../views/NotFound.vue";
 import store from "../store";
 import OrderDetails from "../views/Orders/OrderDetails.vue";
 import Users from "../views/Users/Users.vue";
+import Customers from "../views/Customers/Customers.vue";
 
 const routes = [
   {
@@ -46,6 +47,11 @@ const routes = [
         path: "users",
         name: "app.users",
         component: Users,
+      },
+      {
+        path: "customers",
+        name: "app.customers",
+        component: Customers,
       },
     ],
   },

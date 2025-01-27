@@ -151,3 +151,38 @@ export function updateUser({ commit }, user) {
 export function deleteUser({ commit }, id) {
   return axiosClient.delete(`/users/${id}`);
 }
+
+export function getCustomers(
+  { commit },
+  { url = null, sort_field, sort_direction, search = "", perPage = 10 } = {}
+) {
+  commit("setCustomers", [true]);
+  url = url || "/customers";
+  return axiosClient
+    .get(url, {
+      params: {
+        search,
+        sort_field,
+        sort_direction,
+        per_page: perPage,
+      },
+    })
+    .then((res) => {
+      commit("setCustomers", [false, res.data]);
+    })
+    .catch(() => {
+      commit("setCustomers", [false]);
+    });
+}
+
+export function getCustomer({}, id) {
+  return axiosClient.get(`/customers/${id}`);
+}
+
+export function updateCustomer({ commit }, customer) {
+  return axiosClient.put(`/customers/${customer.id}`, customer);
+}
+
+export function deleteCustomer({ commit }, id) {
+  return axiosClient.delete(`/customers/${id}`);
+}
