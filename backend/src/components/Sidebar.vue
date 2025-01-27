@@ -31,6 +31,15 @@
       <span class="text-base">Users</span>
     </router-link>
     <router-link
+      :to="{ name: 'app.customers' }"
+      class="flex items-center hover:bg-black/30 transition-colors p-2 rounded mb-2 outline-none"
+    >
+      <span class="mr-2 text-gray-300">
+        <UserGroupIcon class="w-5" />
+      </span>
+      <span class="text-base">Customers</span>
+    </router-link>
+    <router-link
       :to="{ name: 'app.dashboard' }"
       class="flex items-center hover:bg-black/30 transition-colors p-2 rounded mb-2 outline-none"
     >
@@ -58,6 +67,7 @@ import {
   Bars3Icon,
   ChartBarIcon,
   ShoppingCartIcon,
+  UserGroupIcon,
 } from "@heroicons/vue/24/outline";
 </script>
 
