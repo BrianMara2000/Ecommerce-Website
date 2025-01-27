@@ -31,7 +31,7 @@
       <thead>
         <tr class="animate-fade-in-down text-center">
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortOrders"
             class="border-b-2 p-2 text-left w-[8%]"
             field="id"
             :sort-field="sortField"
@@ -39,15 +39,15 @@
             >Order #</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortOrders"
             class="border-b-2 p-2 text-left w-[15%]"
-            field="customer"
+            field="name"
             :sort-field="sortField"
             :sort-direction="sortDirection"
             >Customer</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortOrders"
             class="border-b-2 p-2 text-left w-[20%]"
             field="created_at"
             :sort-field="sortField"
@@ -55,15 +55,14 @@
             >Date</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortOrders"
             class="border-b-2 p-2 text-left"
-            field="subtotal"
+            field="total_price"
             :sort-field="sortField"
             :sort-direction="sortDirection"
             >SubTotal</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortProducts"
             class="border-b-2 p-2 text-left"
             field="number_of_items"
             :sort-field="sortField"
@@ -71,7 +70,7 @@
             >Items</TableHeaderCell
           >
           <TableHeaderCell
-            @click="sortProducts"
+            @click="sortOrders"
             class="border-b-2 p-2 text-left w-[10%]"
             field="status"
             :sort-field="sortField"
@@ -218,7 +217,7 @@ const getForPage = (e, link) => {
   getOrders(link.url);
 };
 
-const sortProducts = (field) => {
+const sortOrders = (field) => {
   if (field === sortField.value) {
     sortDirection.value = sortDirection.value === "desc" ? "asc" : "desc";
   } else {

@@ -20,11 +20,12 @@ class OrderController extends Controller
         $sortField = request('sort_field', 'updated_at');
         $sortDirection = request('sort_direction', 'desc');
 
-        $query = Order::query()->with('payment', 'items');
+        $query = Order::query()->join('users', 'orders.created_by', '=', 'users.id')
+            ->select('orders.*', 'users.name');
         $query->orderBy($sortField, $sortDirection);
         if ($search) {
             $query->where('id', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%");
+                ->orWhere('customers.first_name', 'like', "%{$search}%");
         }
         return OrderListResource::collection($query->paginate($perPage));
     }

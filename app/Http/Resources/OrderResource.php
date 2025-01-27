@@ -36,17 +36,22 @@ class OrderResource extends JsonResource
                 'shipping_address' => new CustomerAddressResource($customer->shippingAddress),
             ] : null,
             'isPaid' => $this->isPaid,
-            'number_of_items' => $this->items->count(),
-            'items' => $this->items->map(function ($item) {
+            'number_of_items' => $this->items->filter(function ($item) {
+                return $item->product !== null;
+            })->count(),
+            'items' => $this->items->filter(function ($item) {
+                return $item->product !== null;
+            })->map(function ($item) {
+                $product = $item->product;
                 return [
                     'id' => $item->id,
                     'quantity' => $item->quantity,
                     'unit_price' => $item->unit_price,
                     'product' => [
-                        'id' => $item->product->id,
-                        'slug' => $item->product->slug,
-                        'title' => $item->product->title,
-                        'image' => $item->product->image,
+                        'id' => $product->id,
+                        'slug' => $product->slug,
+                        'title' => $product->title,
+                        'image' => $product->image,
                     ],
                 ];
             }),
