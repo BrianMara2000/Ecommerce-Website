@@ -41,7 +41,7 @@
               {{ formatDate(order.created_at) }}
             </td>
             <td class="p-4">$ {{ order.total_price }}</td>
-            <td class="p-4">{{ order.items.length }} item(s)</td>
+            <td class="p-4">{{ getOrderQuantity(order.items) }} item(s)</td>
             <td class="p-4">
               <div
                 class="w-[80%] text-sm rounded-md px-1 py-2 flex items-center justify-center"
@@ -193,6 +193,10 @@ const capitalizedStatus = (stats) => useCapitalizedStatus(stats);
 
 const payOrder = (id) => {
   router.post(route("checkout.order", id));
+};
+
+const getOrderQuantity = (items) => {
+  return items.reduce((total, item) => total + item.quantity, 0);
 };
 
 const getOrders = () => {

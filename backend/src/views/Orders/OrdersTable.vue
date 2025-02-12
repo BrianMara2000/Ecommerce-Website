@@ -174,7 +174,6 @@ import store from "../../store";
 import { PRODUCTS_PER_PAGE } from "../../constants";
 import TableHeaderCell from "../../components/core/table/TableHeaderCell.vue";
 import { EyeIcon } from "@heroicons/vue/24/outline";
-import { useCapitalizedStatus } from "../../utils/utils";
 import OrderStatus from "./OrderStatus.vue";
 
 const perPage = ref(PRODUCTS_PER_PAGE);

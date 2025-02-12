@@ -3,7 +3,7 @@
     <!-- Order Header -->
     <div class="bg-white p-6 rounded-lg shadow-md">
       <div class="flex items-center mb-4">
-        <h2 class="text-2xl font-bold mr-5">Order Number #{{ order.id }}</h2>
+        <h2 class="text-2xl font-bold mr-5">Order #{{ order.id }}</h2>
         <div
           class="px-3 py-1 rounded-lg text-sm font-bold"
           :class="{
