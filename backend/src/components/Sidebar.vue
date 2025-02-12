@@ -17,7 +17,7 @@
       class="flex items-center hover:bg-black/30 transition-colors p-2 rounded mb-2 outline-none"
     >
       <span class="mr-2 text-gray-300">
-        <Bars3Icon class="w-5" />
+        <ShoppingBagIcon class="w-5" />
       </span>
       <span class="text-base">Products</span>
     </router-link>
@@ -64,7 +64,7 @@
 import {
   HomeIcon,
   UsersIcon,
-  Bars3Icon,
+  ShoppingBagIcon,
   ChartBarIcon,
   ShoppingCartIcon,
   UserGroupIcon,
