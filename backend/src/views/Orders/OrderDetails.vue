@@ -184,7 +184,7 @@
 import store from "../../store";
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useCapitalizedStatus } from "../../utils/utils";
+import { useCapitalizedFirstLetter } from "../../utils/utils";
 import Spinner from "../../components/core/Spinner.vue";
 import {
   UserIcon,
@@ -199,7 +199,7 @@ import OrderStatus from "./OrderStatus.vue";
 const route = useRoute();
 
 const capitalizedStatus = (status) => {
-  return status ? useCapitalizedStatus(status) : "";
+  return status ? useCapitalizedFirstLetter(status) : "";
 };
 
 const order = ref({});

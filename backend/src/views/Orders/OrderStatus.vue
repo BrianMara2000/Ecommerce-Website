@@ -14,11 +14,11 @@
 </template>
 
 <script setup>
-import { useCapitalizedStatus } from "../../utils/utils";
+import { useCapitalizedFirstLetter } from "../../utils/utils";
 
 defineProps({
   order: String,
 });
 
-const capitalizedStatus = (stats) => useCapitalizedStatus(stats);
+const capitalizedStatus = (stats) => useCapitalizedFirstLetter(stats);
 </script>
