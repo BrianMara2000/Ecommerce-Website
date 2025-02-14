@@ -44,7 +44,9 @@ class DashboardController extends Controller
         try {
             $period = $request->query('period', 'monthly'); // Default to 'monthly'
             $startDate = $request->query('startDate') ? Carbon::parse($request->query('startDate')) : Carbon::now()->subDays(30);
-            $endDate = $request->query('endDate') ? Carbon::parse($request->query('endDate')) : Carbon::now();
+            $endDate = $request->query('endDate')
+                ? Carbon::parse($request->query('endDate'))->endOfDay()
+                : Carbon::now()->endOfDay();
 
             $query = Order::where('status', OrderStatus::Paid->value)
                 ->whereBetween('updated_at', [$startDate, $endDate]);
@@ -57,12 +59,11 @@ class DashboardController extends Controller
                         $allDates[$date->toDateString()] = [
                             'date' => $date->toDateString(),
                             'total_revenue' => 0,
-                            'order_ids' => '',
                         ];
                     }
 
                     $revenue = $query
-                        ->selectRaw('DATE(updated_at) as date, SUM(total_price) as total_revenue, GROUP_CONCAT(id) as order_ids')
+                        ->selectRaw('DATE(updated_at) as date, SUM(total_price) as total_revenue')
                         ->groupBy('date')
                         ->orderBy('date', 'asc')
                         ->get();
@@ -71,7 +72,6 @@ class DashboardController extends Controller
                         $allDates[$row->date] = [
                             'date' => $row->date,
                             'total_revenue' => $row->total_revenue,
-                            'order_ids' => $row->order_ids,
                         ];
                     }
                     break;
@@ -98,8 +98,7 @@ class DashboardController extends Controller
                                     WHEN DAY(updated_at) BETWEEN 22 AND 28 THEN 4
                                     ELSE 5
                                 END AS week_of_month,
-                                sum(total_price) as total_revenue,
-                                GROUP_CONCAT(id) as order_ids')
+                                sum(total_price) as total_revenue')
                         ->whereBetween('updated_at', [$startDate, $endDate->addDay(1)])
                         ->groupBy('year', 'month', 'week_of_month')
                         ->orderBy('year')
