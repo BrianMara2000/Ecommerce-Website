@@ -22,14 +22,14 @@ class DashboardController extends Controller
             $products = Product::count();
 
             $orderStats = Order::where('status', OrderStatus::Paid->value)
-                ->selectRaw('COUNT(*) as total_orders, SUM(total_price) as total_income')
+                ->selectRaw('COUNT(*) as total_orders, SUM(total_price) as total_revenue')
                 ->first();
 
             return response()->json([
                 'customers' => $customers,
                 'products' => $products,
                 'orders' => $orderStats->total_orders ?? 0,
-                'income' => $orderStats->total_income ?? 0.00,
+                'revenue' => $orderStats->total_revenue ?? 0.00,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -56,13 +56,13 @@ class DashboardController extends Controller
                     for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
                         $allDates[$date->toDateString()] = [
                             'date' => $date->toDateString(),
-                            'total_income' => 0,
+                            'total_revenue' => 0,
                             'order_ids' => '',
                         ];
                     }
 
                     $revenue = $query
-                        ->selectRaw('DATE(updated_at) as date, SUM(total_price) as total_income, GROUP_CONCAT(id) as order_ids')
+                        ->selectRaw('DATE(updated_at) as date, SUM(total_price) as total_revenue, GROUP_CONCAT(id) as order_ids')
                         ->groupBy('date')
                         ->orderBy('date', 'asc')
                         ->get();
@@ -70,7 +70,7 @@ class DashboardController extends Controller
                     foreach ($revenue as $row) {
                         $allDates[$row->date] = [
                             'date' => $row->date,
-                            'total_income' => $row->total_income,
+                            'total_revenue' => $row->total_revenue,
                             'order_ids' => $row->order_ids,
                         ];
                     }
@@ -84,7 +84,7 @@ class DashboardController extends Controller
                     for ($week = 1; $week <= 5; $week++) {
                         $weeksInMonth["Week $week"] = [
                             'week' => "Week $week",
-                            'total_income' => 0,
+                            'total_revenue' => 0,
                         ];
                     }
 
@@ -98,7 +98,7 @@ class DashboardController extends Controller
                                     WHEN DAY(updated_at) BETWEEN 22 AND 28 THEN 4
                                     ELSE 5
                                 END AS week_of_month,
-                                sum(total_price) as total_income,
+                                sum(total_price) as total_revenue,
                                 GROUP_CONCAT(id) as order_ids')
                         ->whereBetween('updated_at', [$startDate, $endDate->addDay(1)])
                         ->groupBy('year', 'month', 'week_of_month')
@@ -111,7 +111,7 @@ class DashboardController extends Controller
                     foreach ($revenue as $row) {
                         $weekLabel = "Week " . $row->week_of_month;
                         if (isset($weeksInMonth[$weekLabel])) {
-                            $weeksInMonth[$weekLabel]['total_income'] = (float) $row->total_income;
+                            $weeksInMonth[$weekLabel]['total_revenue'] = (float) $row->total_revenue;
                         }
                     }
 
@@ -125,12 +125,12 @@ class DashboardController extends Controller
                         $monthKey = $date->format('Y-m');
                         $allDates[$monthKey] = [
                             'month' => $monthKey,
-                            'total_income' => 0,
+                            'total_revenue' => 0,
                         ];
                     }
 
                     $revenue = $query
-                        ->selectRaw('DATE_FORMAT(updated_at, "%Y-%m") as month, SUM(total_price) as total_income')
+                        ->selectRaw('DATE_FORMAT(updated_at, "%Y-%m") as month, SUM(total_price) as total_revenue')
                         ->groupBy('month')
                         ->orderBy('month', 'asc')
                         ->get();
@@ -138,7 +138,7 @@ class DashboardController extends Controller
                     foreach ($revenue as $row) {
                         $allDates[$row->month] = [
                             'month' => $row->month,
-                            'total_income' => $row->total_income,
+                            'total_revenue' => $row->total_revenue,
                         ];
                     }
                     break;
