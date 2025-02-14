@@ -1,8 +1,7 @@
 <!-- components/dashboard/DashboardStatistics.vue -->
 <template>
   <div>
-    <h2 class="text-xl font-semibold mb-4">Dashboard</h2>
-    <StatisticsGrid :statistics="statisticsData" />
+    <StatisticsGrid :statistics="statisticsData" :isLoading="isLoading" />
   </div>
 </template>
 
@@ -19,32 +18,35 @@ import {
 import axiosClient from "../../axios";
 
 const statisticsData = ref([]);
+const isLoading = ref(false);
 
 const fetchStatistics = () => {
+  isLoading.value = true;
   axiosClient
     .get("dashboard/statistics")
     .then((response) => {
-      const { customers, products, orders, income } = response.data;
+      const { customers, products, orders, revenue } = response.data;
       statisticsData.value = [
         { title: "Total Customers", value: customers, icon: UserGroupIcon },
         { title: "Active Products", value: products, icon: ShoppingBagIcon },
         { title: "Paid Orders", value: orders, icon: ShoppingCartIcon },
         {
-          title: "Total Income",
+          title: "Total Revenue",
           value: `${new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "USD",
-          }).format(income)}`,
+          }).format(revenue)}`,
           icon: BanknotesIcon,
         },
       ];
     })
     .catch((error) => {
       console.error("Failed to fetch statistics:", error);
+    })
+    .finally(() => {
+      isLoading.value = false;
     });
 };
 
 onMounted(fetchStatistics);
 </script>
-
-dot-flashing
