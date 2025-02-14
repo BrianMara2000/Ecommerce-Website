@@ -200,7 +200,7 @@ const fetchRevenueData = () => {
             day: "numeric",
           });
         });
-        revenueData = data.map((item) => item.total_income);
+        revenueData = data.map((item) => item.total_revenue);
       } else if (selectedPeriod.value === "weekly") {
         let weeklyGroups = {};
 
@@ -210,7 +210,7 @@ const fetchRevenueData = () => {
           if (!weeklyGroups[weekLabel]) {
             weeklyGroups[weekLabel] = 0;
           }
-          weeklyGroups[weekLabel] += parseFloat(item.total_income); // Ensure it's a number
+          weeklyGroups[weekLabel] += parseFloat(item.total_revenue); // Ensure it's a number
         });
 
         labels = Object.keys(weeklyGroups);
@@ -224,7 +224,7 @@ const fetchRevenueData = () => {
           if (!monthlyGroups[monthLabel]) {
             monthlyGroups[monthLabel] = 0;
           }
-          monthlyGroups[monthLabel] += item.total_income;
+          monthlyGroups[monthLabel] += item.total_revenue;
         });
 
         labels = Object.keys(monthlyGroups);

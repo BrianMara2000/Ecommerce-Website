@@ -5,13 +5,20 @@
     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
   >
     <StatisticsCard
+      v-if="isLoading"
+      v-for="index in 4"
+      :key="'loading-' + index"
+      :loading="true"
+    />
+
+    <StatisticsCard
+      v-else
       v-for="(stat, index) in statistics"
       :key="stat.title"
       :title="stat.title"
       :value="stat.value"
       :icon="stat.icon"
-      :style="{ '--delay': `${index * 0.1}s` }"
-      class="fade-item"
+      :loading="isLoading"
     />
   </TransitionGroup>
 </template>
@@ -20,7 +27,8 @@
 import StatisticsCard from "./StatisticsCard.vue";
 
 defineProps({
-  statistics: Array, // Array of statistic objects
+  statistics: Array,
+  isLoading: Boolean,
 });
 </script>
 
