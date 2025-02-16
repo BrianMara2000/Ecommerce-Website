@@ -66,7 +66,7 @@
               </header>
               <form @submit.prevent="onSubmit">
                 <div v-if="!loading" class="bg-white px-4 pt-5 pb-4">
-                  <div class="mb-2">
+                  <div class="mb-5">
                     <CustomInput
                       class="mb-2"
                       v-model="product.title"
@@ -81,7 +81,7 @@
                     />
                   </div>
 
-                  <div class="mb-2">
+                  <div class="mb-5">
                     <CustomInput
                       type="file"
                       class="mb-2"
@@ -96,7 +96,7 @@
                       :message="error"
                     />
                   </div>
-                  <div class="mb-2">
+                  <div class="mb-5">
                     <CustomInput
                       type="textarea"
                       class="mb-2"
@@ -111,7 +111,7 @@
                       :message="error"
                     />
                   </div>
-                  <div class="mb-2">
+                  <div class="mb-5">
                     <CustomInput
                       type="number"
                       class="mb-2"
@@ -122,6 +122,27 @@
                     <InputError
                       v-if="errors.price"
                       v-for="(error, index) in errors.price"
+                      :key="index"
+                      class="mt-2"
+                      :message="error"
+                    />
+                  </div>
+                  <div class="mb-5">
+                    <select
+                      v-model="product.status"
+                      class="flex appearance-none relative w-32 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    >
+                      <option
+                        v-for="(status, index) in productStatuses"
+                        :key="index"
+                        :value="status"
+                      >
+                        {{ capitalizedStatus(status) }}
+                      </option>
+                    </select>
+                    <InputError
+                      v-if="errors.status"
+                      v-for="(error, index) in errors.status"
                       :key="index"
                       class="mt-2"
                       :message="error"
@@ -156,7 +177,7 @@
 </template>
 
 <script setup>
-import { computed, onUpdated, ref } from "vue";
+import { computed, onMounted, onUpdated, ref } from "vue";
 import {
   TransitionRoot,
   TransitionChild,
@@ -168,9 +189,12 @@ import Spinner from "../../components/core/Spinner.vue";
 import store from "../../store";
 import CustomInput from "../../components/core/CustomInput.vue";
 import InputError from "../../components/InputError.vue";
+import axiosClient from "../../axios";
+import { useCapitalizedFirstLetter } from "../../utils/utils";
 
 const loading = ref(false);
 const errors = ref({});
+const productStatuses = ref([]);
 
 const props = defineProps({
   modelValue: Boolean,
@@ -178,6 +202,7 @@ const props = defineProps({
     required: true,
     type: Object,
   },
+  isArchived: Boolean,
 });
 
 const product = ref({
@@ -186,6 +211,7 @@ const product = ref({
   image: props.product.image,
   description: props.product.description,
   price: props.product.price,
+  status: props.product.status,
 });
 
 const emit = defineEmits(["update:modelValue", "close"]);
@@ -203,6 +229,12 @@ function closeModal() {
   emit("close");
 }
 
+onMounted(() => {
+  axiosClient.get("products/statuses").then(({ data }) => {
+    productStatuses.value = data;
+  });
+});
+
 onUpdated(() => {
   product.value = {
     id: props.product.id,
@@ -210,6 +242,7 @@ onUpdated(() => {
     image: props.product.image,
     description: props.product.description,
     price: props.product.price,
+    status: props.product.status,
   };
 });
 
@@ -222,7 +255,11 @@ const onSubmit = () => {
 
   action
     .then(() => {
-      store.dispatch("getProducts");
+      if (props.isArchived) {
+        store.dispatch("getArchivedProducts"); // Fetch archived products if we are in the archive tab
+      } else {
+        store.dispatch("getProducts"); // Fetch active products if we are in the products tab
+      }
       closeModal();
     })
     .catch((error) => {
@@ -233,5 +270,9 @@ const onSubmit = () => {
     .finally(() => {
       loading.value = false; // Always stop loading
     });
+};
+
+const capitalizedStatus = (status) => {
+  return status ? useCapitalizedFirstLetter(status) : "";
 };
 </script>

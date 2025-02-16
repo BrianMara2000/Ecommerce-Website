@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white p-4 rounded-lg shadow animate-fade-in-down">
-    <div class="flex justify-between border-b-2 pb-3">
+    <div class="flex justify-between pb-3">
       <div class="flex items-center">
         <span class="whitespace-nowrap mr-3">Per page</span>
         <select
@@ -25,6 +25,31 @@
           placeholder="Type to search products"
         />
       </div>
+    </div>
+
+    <div class="flex items-center space-x-4 border-b mb-6">
+      <button
+        @click="getProducts()"
+        :class="
+          !props.isArchived
+            ? 'border-b-2 border-purple-500 text-purple-500'
+            : 'text-gray-500 hover:text-gray-700'
+        "
+        class="py-2 font-semibold"
+      >
+        Products
+      </button>
+      <button
+        @click="getArchivedProducts()"
+        :class="
+          props.isArchived
+            ? 'border-b-2 border-purple-500 text-purple-500'
+            : 'text-gray-500 hover:text-gray-700'
+        "
+        class="py-2 font-semibold"
+      >
+        Archive Products
+      </button>
     </div>
 
     <table class="table-auto w-full">
@@ -62,6 +87,13 @@
             >Price</TableHeaderCell
           >
           <TableHeaderCell
+            class="border-b-2 p-2 w-[20%]"
+            field="status"
+            :sort-field="sortField"
+            :sort-direction="sortDirection"
+            >Status</TableHeaderCell
+          >
+          <TableHeaderCell
             @click="sortProducts"
             class="border-b-2 p-2 text-left w-[20%]"
             field="updated_at"
@@ -74,7 +106,7 @@
       </thead>
       <tbody v-if="products.loading">
         <tr>
-          <td colspan="6">
+          <td colspan="7">
             <Spinner v-if="products.loading" class="mt-3" />
           </td>
         </tr>
@@ -96,6 +128,9 @@
             {{ product.title }}
           </td>
           <td class="border-b p-2">$ {{ product.price }}</td>
+          <td class="border-b p-2">
+            <ProductStatus :product="product.status" />
+          </td>
           <td class="border-b p-2">{{ product.updated_at }}</td>
           <td class="border-b p-2">
             <Menu as="div" class="relative text-left flex justify-center">
@@ -131,7 +166,7 @@
                       >
                         <PencilIcon
                           :active="active"
-                          class="mr-2 h-5 w-5 text-violet-400"
+                          class="mr-2 h-5 w-5 text-violet-400 group-hover:text-white"
                           aria-hidden="true"
                         />
                         Edit
@@ -139,7 +174,25 @@
                     </MenuItem>
                   </div>
 
-                  <div class="px-1 py-1">
+                  <div v-if="product.status !== 'archive'" class="px-1 py-1">
+                    <MenuItem v-slot="{ active }">
+                      <button
+                        :class="[
+                          active ? 'bg-violet-500 text-white' : 'text-gray-900',
+                          'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                        ]"
+                        @click="archiveProduct(product)"
+                      >
+                        <ArchiveBoxArrowDownIcon
+                          :active="active"
+                          class="mr-2 h-5 w-5 text-violet-400 group-hover:text-white"
+                          aria-hidden="true"
+                        />
+                        Move to Archive
+                      </button>
+                    </MenuItem>
+                  </div>
+                  <div v-if="product.status === 'archive'" class="px-1 py-1">
                     <MenuItem v-slot="{ active }">
                       <button
                         :class="[
@@ -150,10 +203,10 @@
                       >
                         <TrashIcon
                           :active="active"
-                          class="mr-2 h-5 w-5 text-violet-400"
+                          class="mr-2 h-5 w-5 text-violet-400 group-hover:text-white"
                           aria-hidden="true"
                         />
-                        Delete
+                        Permanent Delete
                       </button>
                     </MenuItem>
                   </div>
@@ -207,30 +260,46 @@
 import { computed, onMounted, ref } from "vue";
 import Spinner from "../../components/core/Spinner.vue";
 import store from "../../store";
+import axiosClient from "../../axios";
 import { PRODUCTS_PER_PAGE } from "../../constants";
 import TableHeaderCell from "../../components/core/table/TableHeaderCell.vue";
 import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import {
   EllipsisVerticalIcon,
   PencilIcon,
+  ArchiveBoxArrowDownIcon,
   TrashIcon,
 } from "@heroicons/vue/24/outline";
 import Swal from "sweetalert2";
+import ProductStatus from "./ProductStatus.vue";
 
 const perPage = ref(PRODUCTS_PER_PAGE);
 const search = ref("");
 const products = computed(() => store.state.products);
 const sortField = ref("updated_at");
 const sortDirection = ref("desc");
+const props = defineProps(["isArchived"]);
 
-const emit = defineEmits(["clickEdit"]);
+const emit = defineEmits(["clickEdit", "update-is-archived"]);
 
 onMounted(() => {
   getProducts();
 });
 
 const getProducts = (url = null) => {
+  emit("update-is-archived", false);
   store.dispatch("getProducts", {
+    url,
+    sort_field: sortField.value,
+    sort_direction: sortDirection.value,
+    search: search.value,
+    perPage: perPage.value,
+  });
+};
+
+const getArchivedProducts = (url = null) => {
+  emit("update-is-archived", true);
+  store.dispatch("getArchivedProducts", {
     url,
     sort_field: sortField.value,
     sort_direction: sortDirection.value,
@@ -287,5 +356,17 @@ function deleteProduct(product) {
         });
     }
   });
+}
+
+function archiveProduct(product) {
+  axiosClient
+    .patch(`/products/${product.id}/archive`)
+    .then(() => {
+      Swal.fire("Archived!", "Product has been archived.", "success");
+      getProducts();
+    })
+    .catch(() => {
+      Swal.fire("Error!", "Something went wrong.", "error");
+    });
 }
 </script>
