@@ -15,6 +15,9 @@ Route::middleware('auth:sanctum', 'admin')
         Route::get('/user', [AuthController::class, 'getUser']);
         Route::post('/logout', [AuthController::class, 'logout']);
 
+        Route::get('/products/statuses', [ProductController::class, 'getStatuses']);
+        Route::get('/products/archived', [ProductController::class, 'getArchived']);
+        Route::patch('/products/{product}/archive', [ProductController::class, 'archive']);
         Route::apiResource('/products', ProductController::class);
         Route::get('/orders/statuses', [OrderController::class, 'getStatuses']);
         Route::put('/orders/change-status/{order}/{status}', [OrderController::class, 'updateStatus']);

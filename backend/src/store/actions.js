@@ -47,6 +47,29 @@ export function getProducts(
     });
 }
 
+export function getArchivedProducts(
+  { commit },
+  { url = null, sort_field, sort_direction, search = "", perPage = 10 } = {}
+) {
+  commit("setProducts", [true]);
+  url = url || "/products/archived";
+  return axiosClient
+    .get(url, {
+      params: {
+        search,
+        sort_field,
+        sort_direction,
+        per_page: perPage,
+      },
+    })
+    .then((res) => {
+      commit("setProducts", [false, res.data]);
+    })
+    .catch(() => {
+      commit("setProducts", [false]);
+    });
+}
+
 export function getProduct({}, id) {
   return axiosClient.get(`products/${id}`);
 }

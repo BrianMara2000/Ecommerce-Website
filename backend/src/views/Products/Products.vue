@@ -11,11 +11,16 @@
   </div>
 
   <ProductModal
+    :isArchived="isArchived"
     v-model="showModal"
     :product="productModel"
     @close="onModalClose"
   />
-  <ProductsTable @clickEdit="editProduct" />
+  <ProductsTable
+    @clickEdit="editProduct"
+    :isArchived="isArchived"
+    @update-is-archived="updateIsArchived"
+  />
 </template>
 
 <script setup>
@@ -30,14 +35,20 @@ const DEFAULT_EMPTY_OBJECT = {
   image: "",
   description: "",
   price: "",
+  status: "",
 };
 
 const showModal = ref(false);
+const isArchived = ref(false);
 const productModel = ref({ ...DEFAULT_EMPTY_OBJECT });
 
 function showProductModal() {
   showModal.value = true;
 }
+
+const updateIsArchived = (value) => {
+  isArchived.value = value;
+};
 
 function editProduct(product) {
   store.dispatch("getProduct", product.id).then(({ data }) => {

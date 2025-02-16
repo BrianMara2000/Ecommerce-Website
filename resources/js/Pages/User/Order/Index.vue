@@ -9,8 +9,6 @@
       >
         Active
       </button>
-      <button class="py-2 text-gray-500 hover:text-gray-700">Archive</button>
-      <button class="py-2 text-gray-500 hover:text-gray-700">Relevance</button>
     </div>
 
     <!-- Table -->
