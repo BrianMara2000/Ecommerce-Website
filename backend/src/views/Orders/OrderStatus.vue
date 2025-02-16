@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-[80%] text-sm rounded-md px-1 py-2 flex items-center justify-center"
+    class="w-[80%] text-sm rounded-md px-1 py-2 flex items-center justify-center mx-auto"
     :class="{
       'bg-emerald-500 text-white': order === 'paid',
       'bg-yellow-500 text-white': order === 'unpaid',

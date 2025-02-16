@@ -6,7 +6,11 @@
   >
     <div
       class="flex"
-      :class="field === 'actions' ? 'justify-center' : 'justify-between'"
+      :class="
+        field === 'actions' || field === 'status'
+          ? 'justify-center'
+          : 'justify-between'
+      "
     >
       <slot></slot>
       <div v-if="sortField === field" class="ml-2">
