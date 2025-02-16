@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ProductStatus;
 use App\Models\Api\Product;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
@@ -24,7 +25,7 @@ class ProductController extends Controller
         $sortField = request('sort_field', 'updated_at');
         $sortDirection = request('sort_direction', 'desc');
 
-        $query = Product::query();
+        $query = Product::query()->where('status', '!=', ProductStatus::Archive->value);
         $query->orderBy($sortField, $sortDirection);
         if ($search) {
             $query->where('title', 'like', "%{$search}%")
@@ -57,6 +58,17 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
+    public function getArchived()
+    {
+        $perPage = request('per_page', 10);
+        $sortField = request('sort_field', 'updated_at');
+        $sortDirection = request('sort_direction', 'desc');
+
+        $query = Product::query()->where('status', ProductStatus::Archive->value);
+        $query->orderBy($sortField, $sortDirection);
+
+        return ProductListResource::collection($query->paginate($perPage));
+    }
     /**
      * Display the specified resource.
      */
@@ -110,5 +122,18 @@ class ProductController extends Controller
         }
 
         return $path . '/' . $image->getClientOriginalName();
+    }
+
+    public function archive(Product $product)
+    {
+        $product->status = ProductStatus::Archive->value;
+        $product->save();
+
+        return new ProductResource($product);
+    }
+
+    public function getStatuses()
+    {
+        return response()->json(ProductStatus::getStatuses());
     }
 }

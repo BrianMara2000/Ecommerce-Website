@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Enums\ProductStatus;
 use Inertia\Inertia;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::query()->orderBy('updated_at', 'desc')->paginate(10);
+        $products = Product::query()->where('status', ProductStatus::Published->value)->orderBy('updated_at', 'desc')->paginate(10);
 
         return Inertia::render('User/Product/Index', [
             'products' => $products,

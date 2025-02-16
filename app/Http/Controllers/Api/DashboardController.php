@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Customer;
 use App\Enums\AddressType;
 use App\Enums\OrderStatus;
+use App\Enums\ProductStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -19,7 +20,7 @@ class DashboardController extends Controller
     {
         try {
             $customers = Customer::count();
-            $products = Product::count();
+            $products = Product::where('status', ProductStatus::Published->value)->count();
 
             $orderStats = Order::where('status', OrderStatus::Paid->value)
                 ->selectRaw('COUNT(*) as total_orders, SUM(total_price) as total_revenue')
@@ -196,6 +197,7 @@ class DashboardController extends Controller
                     'customers.last_name',
                     'users.email'
                 )
+                ->where('users.is_admin', false)
                 ->orderBy('customers.created_at', 'desc')
                 ->limit(5)
                 ->get();
