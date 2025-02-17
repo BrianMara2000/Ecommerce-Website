@@ -10,7 +10,7 @@
       <table class="table-auto w-full">
         <thead>
           <tr class="animate-fade-in-down text-center">
-            <TableHeaderCell class="border-b-2 p-2 text-left" field="id"
+            <TableHeaderCell class="border-b-2 p-2 text-center" field="id"
               >Order #</TableHeaderCell
             >
             <TableHeaderCell class="border-b-2 p-2 text-left" field="name"
@@ -22,7 +22,7 @@
               >SubTotal</TableHeaderCell
             >
             <TableHeaderCell
-              class="border-b-2 p-2 text-left"
+              class="border-b-2 p-2 text-center"
               field="number_of_items"
               >Items</TableHeaderCell
             >
@@ -54,7 +54,7 @@
             </td>
             <td class="border-b p-4">${{ order.total_price }}</td>
             <td class="border-b p-4">{{ order.total_quantity }} Item(s)</td>
-            <td class="border-b p-4">{{ order.order_date }}</td>
+            <td class="border-b p-4 text-center">{{ order.order_date }}</td>
           </tr>
         </tbody>
       </table>
