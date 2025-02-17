@@ -40,7 +40,7 @@
       <span class="text-base">Customers</span>
     </router-link>
     <router-link
-      :to="{ name: 'app.dashboard' }"
+      :to="{ name: 'app.reports' }"
       class="flex items-center hover:bg-black/30 transition-colors p-2 rounded mb-2 outline-none"
     >
       <span class="mr-2 text-gray-300">
