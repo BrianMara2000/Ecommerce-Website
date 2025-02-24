@@ -98,7 +98,7 @@
           :style="{ 'animation-delay': `${index * 0.05}s`, 'z-index': '0' }" -->
           <td class="border-b pl-6 p-2">{{ order.id }}</td>
           <td class="border-b p-2">
-            {{ order.customer.first_name + " " + order.customer.last_name }}
+            {{ order.customer.name }}
           </td>
           <td class="border-b p-2">{{ formatDate(order.created_at) }}</td>
           <td class="border-b p-2">${{ order.subtotal }}</td>

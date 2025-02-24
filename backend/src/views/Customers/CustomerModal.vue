@@ -297,7 +297,6 @@ const onSubmit = () => {
             errors.value[key] = value;
           }
         }
-        console.log(errors.value);
       }
     })
     .finally(() => {

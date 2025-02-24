@@ -41,7 +41,7 @@
           <TableHeaderCell
             @click="sortCustomers"
             class="border-b-2 p-2 text-left w-[10%]"
-            field="first_name"
+            field="name"
             :sort-field="sortField"
             :sort-direction="sortDirection"
             >Name</TableHeaderCell
@@ -100,7 +100,7 @@
           :style="{ 'animation-delay': `${index * 0.05}s`, 'z-index': '0' }" -->
           <td class="border-b pl-6 p-2">{{ customer.id }}</td>
           <td class="border-b p-2">
-            {{ customer.first_name }} {{ customer.last_name }}
+            {{ customer.name }}
           </td>
           <td class="border-b p-2">{{ customer.email }}</td>
           <td class="border-b p-2">{{ customer.phone }}</td>
