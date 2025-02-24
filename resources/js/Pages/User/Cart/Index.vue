@@ -13,18 +13,29 @@
             class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:p-6"
           >
             <div
+              v-if="product.deleted_at"
+              class="bg-red-100 border border-red-400 text-sm font text-red-700 px-4 py-2 mb-5 rounded relative"
+              role="alert"
+            >
+              <strong class="font-bold mr-2">Warning!</strong>
+              <span class="block sm:inline"
+                >This product is out of stock or has been deleted by the admin.
+                You cannot check it out.</span
+              >
+            </div>
+            <div
               class="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0"
             >
               <a href="#" class="shrink-0 md:order-1">
                 <img
                   class="h-20 w-20 dark:hidden"
-                  :src="product.image_url"
-                  :alt="product.image_url"
+                  :src="product.image"
+                  :alt="product.image"
                 />
                 <img
                   class="hidden h-20 w-20 dark:block"
-                  :src="product.image_url"
-                  :alt="product.image_url"
+                  :src="product.image"
+                  :alt="product.image"
                 />
               </a>
 
@@ -37,33 +48,28 @@
                 <div class="flex items-center">
                   <button
                     @click.prevent="
-                      update(product, carts[itemId(product.id)].quantity - 1)
+                      update(
+                        product,
+                        cartItems[itemId(product.id)].quantity - 1
+                      )
                     "
                     type="button"
                     id="decrement-button"
-                    data-input-counter-decrement="counter-input"
-                    :disabled="carts[itemId(product.id)].quantity <= 1"
+                    :disabled="
+                      (cartItems[itemId(product.id)]?.quantity ?? 0) <= 1 ||
+                      !!product.deleted_at
+                    "
+                    class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
                     :class="[
-                      carts[itemId(product.id)].quantity > 1
-                        ? 'inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700'
+                      cartItems[itemId(product.id)]?.quantity > 1 &&
+                      !product.deleted_at
+                        ? ''
                         : 'cursor-not-allowed text-gray-300 dark:text-gray-500',
                     ]"
                   >
-                    <svg
+                    <MinusIcon
                       class="h-2.5 w-2.5 text-gray-900 dark:text-white"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 18 2"
-                    >
-                      <path
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M1 1h16"
-                      />
-                    </svg>
+                    />
                   </button>
                   <input
                     type="text"
@@ -71,34 +77,30 @@
                     data-input-counter
                     class="w-10 shrink-0 border-0 bg-transparent text-center text-sm font-medium text-gray-900 focus:outline-none focus:ring-0 dark:text-white"
                     placeholder=""
-                    v-model="carts[itemId(product.id)].quantity"
+                    v-model="cartItems[itemId(product.id)].quantity"
                     required
                     disabled
                   />
                   <button
                     @click.prevent="
-                      update(product, carts[itemId(product.id)].quantity + 1)
+                      update(
+                        product,
+                        cartItems[itemId(product.id)].quantity + 1
+                      )
                     "
                     type="button"
                     id="increment-button"
-                    data-input-counter-increment="counter-input"
+                    :disabled="!!product.deleted_at"
                     class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+                    :class="[
+                      !product.deleted_at
+                        ? ''
+                        : 'cursor-not-allowed text-gray-300 dark:text-gray-500',
+                    ]"
                   >
-                    <svg
+                    <PlusIcon
                       class="h-2.5 w-2.5 text-gray-900 dark:text-white"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 18 18"
-                    >
-                      <path
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 1v16M1 9h16"
-                      />
-                    </svg>
+                    />
                   </button>
                 </div>
                 <div class="text-end md:order-4 md:w-32">
@@ -312,14 +314,16 @@ import UserLayout from "../Layouts/UserLayout.vue";
 import { usePage, router } from "@inertiajs/vue3";
 import { toast } from "vue3-toastify";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import { PlusIcon, MinusIcon } from "@heroicons/vue/24/outline";
 
 defineOptions({ layout: UserLayout });
 
-const products = computed(() => usePage().props.cart.data.products);
-const total = computed(() => usePage().props.cart.data.total);
-const carts = computed(() => usePage().props.cart.data.items);
-const itemId = (id) => carts.value.findIndex((item) => item.product_id === id);
+const products = computed(() => usePage().props.products);
+const total = computed(() => usePage().props.total);
+const cartItems = computed(() => usePage().props.cartItems);
+const itemId = (id) => (cartItems.value[id] ? id : -1);
 
+console.log(cartItems.value);
 const update = (product, quantity) => {
   router.patch(route("cart.updateQuantity", product), {
     quantity,

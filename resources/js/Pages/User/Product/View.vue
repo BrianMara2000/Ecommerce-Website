@@ -281,7 +281,6 @@
 import { ref } from "vue";
 import UserLayout from "../Layouts/UserLayout.vue";
 import { useCart } from "@/utils/utils";
-import { usePage } from "@inertiajs/vue3";
 
 defineProps({
   product: {

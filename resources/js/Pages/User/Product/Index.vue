@@ -16,21 +16,29 @@
           v-for="product in products.data"
           :key="product.id"
         >
-          <a :href="route('product.view', product.slug)">
+          <Link
+            :href="route('product.view', product.slug)"
+            :preserve-state="true"
+            :only="['product']"
+          >
             <img
               class="p-8 rounded-t-lg h-full w-full object-cover object-center lg:h-full lg:w-full"
               :src="product.image"
               alt="product image"
             />
-          </a>
+          </Link>
           <div class="px-5 pb-5">
-            <a :href="route('product.view', product.slug)">
+            <Link
+              :href="route('product.view', product.slug)"
+              :only="['product']"
+              :preserve-state="true"
+            >
               <h5
                 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white"
               >
                 {{ product.title }}
               </h5>
-            </a>
+            </Link>
             <div class="flex items-center mt-2.5 mb-5">
               <div class="flex items-center space-x-1 rtl:space-x-reverse">
                 <svg
@@ -116,6 +124,7 @@ import UserLayout from "../Layouts/UserLayout.vue";
 import Pagination from "@/Components/Pagination.vue";
 import { useCart } from "@/utils/utils";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import { Link } from "@inertiajs/vue3";
 
 defineOptions({ layout: UserLayout });
 
