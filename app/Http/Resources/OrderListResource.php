@@ -22,12 +22,10 @@ class OrderListResource extends JsonResource
             'status' => $this->status,
             'customer' => [
                 'id' => $this->user->id,
-                'first_name' => $this->user->customer->first_name,
-                'last_name' => $this->user->customer->last_name,
+                'name' => $this->user->name,
             ],
             'number_of_items' => $this->items->sum('quantity'),
             'isPaid' => $this->isPaid,
-            'items' => $this->items,
         ];
     }
 }
