@@ -8,11 +8,11 @@ use App\Models\Country;
 use App\Enums\AddressType;
 use Illuminate\Http\Request;
 use App\Models\CustomerAddress;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ProfileRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Validation\ValidationException;
 
 class ProfileController extends Controller
@@ -26,12 +26,11 @@ class ProfileController extends Controller
         $user = $request->user();
         /** @var \App\Models\Customer $customer */
         $customer = $user->customer;
+
         $shippingAddress = $customer->shippingAddress ?? new CustomerAddress(['type' => AddressType::Shipping]);
         $billingAddress = $customer->billingAddress ?? new CustomerAddress(['type' => AddressType::Billing]);
         $countries = Country::query()->orderBy('name')->get();
         return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => session('status'),
             'shippingAddress' => $shippingAddress,
             'billingAddress' => $billingAddress,
             'customer' => $customer,
@@ -44,6 +43,7 @@ class ProfileController extends Controller
      */
     public function update(ProfileRequest $request)
     {
+        DB::beginTransaction();
         try {
             $customerData = $request->validated();
 
@@ -52,6 +52,20 @@ class ProfileController extends Controller
 
             $user = $request->user();
             $customer = $user->customer;
+
+            // Check if first_name or last_name is changed
+            $firstNameChanged = isset($customerData['first_name']) && $customerData['first_name'] !== $customer->first_name;
+            $lastNameChanged = isset($customerData['last_name']) && $customerData['last_name'] !== $customer->last_name;
+
+            // Update main customer data
+            $customer->update($customerData);
+
+            // Update the user's name if first or last name is changed
+            if ($firstNameChanged || $lastNameChanged) {
+                $user->update([
+                    'name' => trim($customerData['first_name'] . ' ' . $customerData['last_name']),
+                ]);
+            }
 
             // Update main customer data
             $customer->update($customerData);
@@ -74,9 +88,13 @@ class ProfileController extends Controller
                 CustomerAddress::create($billingData);
             }
 
+            DB::commit();
+
+
             return redirect()->back()->with('success', 'Profile was updated successfully.');
         } catch (ValidationException $e) {
             // Return with errors and retain input
+            DB::rollBack();
             return back()->withErrors($e->errors())->withInput();
         }
     }

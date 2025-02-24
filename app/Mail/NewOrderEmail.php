@@ -22,7 +22,7 @@ class NewOrderEmail extends Mailable
      */
     public function __construct(Order $order,  $user)
     {
-        $this->order = $order;
+        $this->order = $order->load('items.product');
         $this->user = $user;
     }
 

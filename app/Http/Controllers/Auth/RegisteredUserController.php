@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Helpers\Cart;
-use App\Http\Controllers\Controller;
-use App\Models\Customer;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use App\Helpers\Cart;
+use Inertia\Response;
+use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Auth\Events\Registered;
 
 class RegisteredUserController extends Controller
 {
@@ -38,22 +39,30 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
 
-        event(new Registered($user));
+            event(new Registered($user));
 
-        $customer = new Customer();
-        $names = explode(" ", $user->name);
-        $customer->user_id = $user->id;
-        $customer->first_name = $names[0];
-        $customer->last_name = $names[1] ?? '';
-        $customer->save();
+            $customer = new Customer();
+            $names = explode(" ", $user->name);
+            $customer->user_id = $user->id;
+            $customer->first_name = $names[0];
+            $customer->last_name = $names[1] ?? '';
+            $customer->save();
 
-        Auth::login($user);
+            Auth::login($user);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput()->withErrors(['error' => 'An error occurred while registering.']);
+        }
+
+        DB::commit();
 
         Cart::moveCartItemsIntoDb();
 

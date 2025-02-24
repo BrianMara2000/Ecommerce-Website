@@ -17,7 +17,6 @@ defineProps({
 });
 
 const errors = usePage().props.errors;
-const flash = usePage().props.flash;
 
 const user = usePage().props.auth.user;
 const customer = usePage().props.customer;
@@ -78,6 +77,10 @@ onMounted(() => {
       ...savedForm.shipping,
     };
   }
+
+  if (errors[0]) {
+    toast.warning(errors[0]);
+  }
 });
 
 // Watch for changes to form and save to localStorage
@@ -100,7 +103,7 @@ function updateProfile() {
     },
     onError: (errors) => {
       // Keep data in local storage if there's an error
-      toast.error("Please fill in the required failed");
+      toast.error("Please fill in the required field");
     },
   });
 }

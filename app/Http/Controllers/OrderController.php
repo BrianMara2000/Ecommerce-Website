@@ -30,12 +30,7 @@ class OrderController extends Controller
     {
         $user = $request->user();
 
-        $order = Order::query()
-            ->with(['items' => function ($query) {
-                $query->whereHas('product');
-            }, 'items.product', 'user.customer'])
-            ->where('id', $order->id)
-            ->first();
+        $order->load('items.product');
 
         if ($order->created_by !== $user->id) {
             abort(403, "You're not authorized to view this order.");

@@ -23,14 +23,17 @@ class UserController extends Controller
         $sortField = request('sort_field', 'updated_at');
         $sortDirection = request('sort_direction', 'desc');
 
-        $query = User::query()->join('customers', 'users.id', '=', 'customers.user_id')
-            ->select('users.*', 'customers.phone');
+        $query = User::query()
+            ->with(['customer:user_id,phone']) // Load the related customer
+            ->selectRaw('users.*, (SELECT phone FROM customers WHERE customers.user_id = users.id) as phone');
         $query->orderBy($sortField, $sortDirection);
         if ($search) {
             $query->where('users.id', 'like', "%{$search}%")
                 ->orWhere('users.name', 'like', "%{$search}%")
                 ->orWhere('users.email', 'like', "%{$search}%")
-                ->orWhere('customers.phone', 'like', "%{$search}%");
+                ->orWhereHas('customer', function ($query) use ($search) {
+                    $query->where('phone', 'like', "%{$search}%");
+                });
         }
         return UserListResource::collection($query->paginate($perPage));
     }

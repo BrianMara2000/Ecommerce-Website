@@ -42,7 +42,7 @@ class HandleInertiaRequests extends Middleware
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
 
-            'cart' => new CartResource(Cart::getProductsAndCartItems()),
+            'cartCount' => Cart::getCartItemsCount(),
 
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
