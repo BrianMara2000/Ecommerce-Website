@@ -80,7 +80,7 @@ class Cart
   {
     $cartItems = self::getCartItems();
     $ids = Arr::pluck($cartItems, 'product_id');
-    $products = Product::whereIn('id', $ids)->get();
+    $products = Product::whereIn('id', $ids)->withTrashed()->get();
     $cartItems = Arr::keyBy($cartItems, 'product_id');
     return [$products, $cartItems];
   }

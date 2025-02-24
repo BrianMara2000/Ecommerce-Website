@@ -6,11 +6,11 @@ use Inertia\Inertia;
 use App\Helpers\Cart;
 use App\Models\Product;
 use App\Models\CartItem;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CartResource;
 use Illuminate\Support\Facades\Cookie;
+
 
 class CartController extends Controller
 {
@@ -19,12 +19,19 @@ class CartController extends Controller
 
 		$user = $request->user();
 		if ($user) {
-			$cartItems = CartItem::where('user_id', $user->id)->get();
-			if ($cartItems->count() > 0) {
+			[$products, $cartItems] = Cart::getProductsAndCartItems();
+
+			$total = $products->filter(fn(Product $product) => $product->deleted_at === null)
+				->reduce(fn(?float $carry, Product $product) => $carry + $product->price * $cartItems[$product->id]['quantity'], 0.0);
+			$total = round($total, 2);
+
+			if (!empty($cartItems)) {
 				return Inertia::render(
 					'User/Cart/Index',
 					[
 						'cartItems' => $cartItems,
+						'products' => $products,
+						'total' => $total
 					]
 				);
 			} else {
