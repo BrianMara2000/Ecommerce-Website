@@ -14,6 +14,8 @@ use App\Enums\OrderStatus;
 use App\Mail\NewOrderEmail;
 use App\Enums\PaymentStatus;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 
@@ -22,6 +24,12 @@ class CheckoutController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
+
+        if (!$user->customer->shippingAddress || !$user->customer->billingAddress) {
+
+            return redirect()->route('profile.edit')->withErrors('Please fill in your profile information before proceeding to checkout.')->withInput();
+        }
+
         $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
 
         list($products, $cartItems) = Cart::getProductsAndCartItems();
@@ -60,42 +68,53 @@ class CheckoutController extends Controller
             'customer_creation' => 'always',
         ]);
 
-        //Create order
-        $orderData = [
-            'total_price' => $totalPrice,
-            'status' => OrderStatus::Unpaid,
-            'created_by' => $user->id,
-            'updated_by' => $user->id,
-        ];
 
-        $order = Order::create($orderData);
 
-        //Create Order Items
-        foreach ($orderItems as $orderItem) {
-            $orderItem['order_id'] = $order->id;
-            OrderItem::create($orderItem);
+        DB::beginTransaction();
+        try {
+            //Create order
+            $orderData = [
+                'total_price' => $totalPrice,
+                'status' => OrderStatus::Unpaid,
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ];
+            $order = Order::create($orderData);
+
+            //Create Order Items
+            foreach ($orderItems as $orderItem) {
+                $orderItem['order_id'] = $order->id;
+                OrderItem::create($orderItem);
+            }
+
+            //Create payment
+            $paymentData = [
+                'order_id' => $order->id,
+                'amount' => $totalPrice,
+                'status' => PaymentStatus::Pending,
+                'type' => 'cc',
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+                'session_id' => $checkout_session->id,
+            ];
+
+            Payment::create($paymentData);
+
+            DB::commit();
+
+            return Inertia::location($checkout_session->url);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return redirect()->route('checkout.failure', ['message' => $e->getMessage()]);
         }
-
-        //Create payment
-        $paymentData = [
-            'order_id' => $order->id,
-            'amount' => $totalPrice,
-            'status' => PaymentStatus::Pending,
-            'type' => 'cc',
-            'created_by' => $user->id,
-            'updated_by' => $user->id,
-            'session_id' => $checkout_session->id,
-        ];
-
-        Payment::create($paymentData);
-
-        return Inertia::location($checkout_session->url);
     }
 
     public function success(Request $request)
     {
         $user = $request->user();
         $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
+
+        DB::beginTransaction();
         try {
             $session_id = $request->get('session_id');
             $session = $stripe->checkout->sessions->retrieve($_GET['session_id']);
@@ -119,19 +138,22 @@ class CheckoutController extends Controller
             $order->status = OrderStatus::Paid;
             $order->update();
 
+            $customer = $stripe->customers->retrieve($session->customer);
+
+            // dd(CartItem::where(['user_id' => $user->id])->delete());
+            CartItem::where(['user_id' => $user->id])->delete();
+            DB::commit();
+
             $adminUsers = User::where('is_admin', 1)->get();
 
             foreach ([...$adminUsers, $order->user] as $user) {
                 Mail::to($user)->send(new NewOrderEmail($order, $user));
             }
 
-            $customer = $stripe->customers->retrieve($session->customer);
-
-            CartItem::where(['user_id' => $user->id])->delete();
-
-
             return Inertia::render('User/Cart/Checkout/Success', ['session' => $session, 'customer' => $customer]);
         } catch (Exception $e) {
+            DB::rollBack();
+            Log::critical("Checkout was not successful: " . $e->getMessage());
             return redirect()->route('checkout.failure', [
                 'message' => $e->getMessage(),
             ]);

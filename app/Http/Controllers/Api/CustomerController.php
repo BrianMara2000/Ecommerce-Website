@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Exception;
 use App\Models\Country;
 use App\Enums\AddressType;
 use App\Models\Api\Customer;
@@ -27,33 +28,37 @@ class CustomerController extends Controller
         $sortField = request('sort_field', 'updated_at');
         $sortDirection = request('sort_direction', 'desc');
 
-        // Determine if sortField belongs to customers or users
-        $customerFields = ['updated_at', 'first_name', 'last_name', 'status', 'phone'];
-        $userFields = ['email'];
+        $customerFields = ['created_at', 'status', 'phone', 'user_id'];
+        $userFields = ['email', 'name'];
 
-        $query = Customer::query()
-            ->join('users', 'customers.user_id', '=', 'users.id')
-            ->select('customers.*', 'users.email'); // Select necessary columns
+        // Use eager loading to prevent multiple queries
+        $query = Customer::with(['user:id,email,name'])
+            ->select('customers.*');
 
-        // Adjust the sorting logic based on the table
+        // Sort conditionally based on the column
         if (in_array($sortField, $customerFields)) {
             $query->orderBy("customers.$sortField", $sortDirection);
         } elseif (in_array($sortField, $userFields)) {
-            $query->orderBy("users.$sortField", $sortDirection);
+            $query->join('users', 'customers.user_id', '=', 'users.id')
+                ->orderBy("users.$sortField", $sortDirection);
         } else {
-            // Default sorting if the field doesn't match any known column
-            $query->orderBy("customers.updated_at", $sortDirection);
+            $query->orderBy("customers.created_at", $sortDirection);
         }
 
-        // Add search filtering
+        // Optimized search query
         if ($search) {
-            $query->where('customers.user_id', 'like', "%{$search}%")
-                ->orWhere(DB::raw("CONCAT(customers.first_name, ' ', customers.last_name)"), 'like', "%{$search}%")
-                ->orWhere('users.email', 'like', "%{$search}%");
+            $query->where(function ($query) use ($search) {
+                $query->where('customers.user_id', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($query) use ($search) {
+                        $query->where('email', 'like', "%{$search}%")
+                            ->orWhere('name', 'like', "%{$search}%");
+                    });
+            });
         }
 
         return CustomerListResource::collection($query->paginate($perPage));
     }
+
 
 
     /**
@@ -73,6 +78,7 @@ class CustomerController extends Controller
      */
     public function update(CustomerRequest $request, Customer $customer)
     {
+        DB::beginTransaction();
         try {
             $customerData = $request->validated();
 
@@ -101,14 +107,23 @@ class CustomerController extends Controller
                 CustomerAddress::create($billingData);
             }
 
+            DB::commit();
+
             return response()->json([
                 'data' => new CustomerResource($customer),
                 'message' => 'Profile was updated successfully.',
             ]);
         } catch (QueryException $e) {
             // Handle any database errors
+            DB::rollBack();
             return response()->json([
                 'message' => 'Database error occurred.',
+                'error' => $e->getMessage(),
+            ], 500);
+        } catch (Exception $e) { // Handle unexpected errors
+            DB::rollBack();
+            return response()->json([
+                'message' => 'An unexpected error occurred.',
                 'error' => $e->getMessage(),
             ], 500);
         }
