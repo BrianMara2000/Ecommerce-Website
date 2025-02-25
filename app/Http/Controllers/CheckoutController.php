@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CheckoutController extends Controller
 {
@@ -37,7 +38,7 @@ class CheckoutController extends Controller
         $lineItems = [];
         $totalPrice = 0;
 
-
+        DB::beginTransaction();
         foreach ($products as $product) {
             $quantity = $cartItems[$product->id]['quantity'];
             $totalPrice += $product->price * $quantity;
@@ -68,9 +69,6 @@ class CheckoutController extends Controller
             'customer_creation' => 'always',
         ]);
 
-
-
-        DB::beginTransaction();
         try {
             //Create order
             $orderData = [
@@ -102,6 +100,8 @@ class CheckoutController extends Controller
 
             DB::commit();
 
+            CartItem::where(['user_id' => $user->id])->delete();
+
             return Inertia::location($checkout_session->url);
         } catch (Exception $e) {
             DB::rollBack();
@@ -114,7 +114,6 @@ class CheckoutController extends Controller
         $user = $request->user();
         $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
 
-        DB::beginTransaction();
         try {
             $session_id = $request->get('session_id');
             $session = $stripe->checkout->sessions->retrieve($_GET['session_id']);
@@ -124,39 +123,23 @@ class CheckoutController extends Controller
             }
 
             $payment = Payment::query()
-                ->where(['session_id' => $session_id, 'status' => PaymentStatus::Pending])->first();
+                ->where(['session_id' => $session_id])
+                ->whereIn('status', [PaymentStatus::Pending, PaymentStatus::Paid])
+                ->first();
 
             if (!$payment) {
-                return redirect()->route('checkout.failure', ['message', "Payment doesn't exist"]);
+                throw new NotFoundHttpException();
             }
 
-            $payment->status = PaymentStatus::Paid;
-            $payment->update();
-
-            $order = $payment->order;
-
-            $order->status = OrderStatus::Paid;
-            $order->update();
+            if ($payment->status === PaymentStatus::Pending->value) {
+                $this->updateOrderAndSession($payment);
+            }
 
             $customer = $stripe->customers->retrieve($session->customer);
 
-            // dd(CartItem::where(['user_id' => $user->id])->delete());
-            CartItem::where(['user_id' => $user->id])->delete();
-            DB::commit();
-
-            $adminUsers = User::where('is_admin', 1)->get();
-
-            foreach ([...$adminUsers, $order->user] as $user) {
-                Mail::to($user)->send(new NewOrderEmail($order, $user));
-            }
-
             return Inertia::render('User/Cart/Checkout/Success', ['session' => $session, 'customer' => $customer]);
         } catch (Exception $e) {
-            DB::rollBack();
             Log::critical("Checkout was not successful: " . $e->getMessage());
-            return redirect()->route('checkout.failure', [
-                'message' => $e->getMessage(),
-            ]);
         }
     }
 
@@ -241,5 +224,34 @@ class CheckoutController extends Controller
         }
 
         return response('', 200);
+    }
+    private function updateOrderAndSession(Payment $payment)
+    {
+        DB::beginTransaction();
+        try {
+            $payment->status = PaymentStatus::Paid->value;
+            $payment->update();
+
+            $order = $payment->order;
+
+            $order->status = OrderStatus::Paid->value;
+            $order->update();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::critical(__METHOD__ . ' method does not work. ' . $e->getMessage());
+            throw $e;
+        }
+
+        DB::commit();
+
+        try {
+            $adminUsers = User::where('is_admin', 1)->get();
+
+            foreach ([...$adminUsers, $order->user] as $user) {
+                Mail::to($user)->send(new NewOrderEmail($order, $user));
+            }
+        } catch (\Exception $e) {
+            Log::critical('Email sending does not work. ' . $e->getMessage());
+        }
     }
 }

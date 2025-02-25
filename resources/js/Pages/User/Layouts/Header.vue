@@ -19,7 +19,7 @@
         v-if="canLogin"
         class="relative flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse gap-5"
       >
-        <Link
+        <a
           :href="route('cart.index')"
           class="relative inline-flex items-center p-2 text-xs hover:bg-gray-200 font-medium text-center rounded-lg"
         >
@@ -29,7 +29,7 @@
           >
             {{ cartCount }}
           </div>
-        </Link>
+        </a>
 
         <div v-if="auth.user === null">
           <Link
