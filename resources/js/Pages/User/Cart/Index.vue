@@ -23,9 +23,18 @@
                 You cannot check it out.</span
               >
             </div>
+
             <div
               class="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0"
             >
+              <input
+                type="checkbox"
+                class="rounded"
+                :value="product.id"
+                v-model="checkoutItems"
+                @checked="console.log(checkoutItems.value)"
+              />
+
               <a href="#" class="shrink-0 md:order-1">
                 <img
                   class="h-20 w-20 dark:hidden"
@@ -309,7 +318,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import UserLayout from "../Layouts/UserLayout.vue";
 import { usePage, router } from "@inertiajs/vue3";
 import { toast } from "vue3-toastify";
@@ -322,8 +331,10 @@ const products = computed(() => usePage().props.products);
 const total = computed(() => usePage().props.total);
 const cartItems = computed(() => usePage().props.cartItems);
 const itemId = (id) => (cartItems.value[id] ? id : -1);
+const checkoutItems = ref([]);
 
-console.log(cartItems.value);
+console.log(checkoutItems.value);
+
 const update = (product, quantity) => {
   router.patch(route("cart.updateQuantity", product), {
     quantity,
