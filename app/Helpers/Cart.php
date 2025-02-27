@@ -25,13 +25,18 @@ class Cart
       );
     }
   }
-  public static function getCartItems()
+  public static function getCartItems($checkoutItems)
   {
     $request = \request();
     $user = $request->user();
 
     if ($user) {
-      return CartItem::where('user_id', $user->id)->get()->map(
+      $query = CartItem::where('user_id', $user->id);
+      if (!empty($checkoutItems)) {
+        $query->whereIn('product_id', $checkoutItems);;
+      }
+
+      return $query->get()->map(
         fn($item) => ['product_id' => $item->product_id, 'quantity' => $item->quantity]
       );
     } else {
@@ -76,9 +81,9 @@ class Cart
     }
   }
 
-  public static function getProductsAndCartItems()
+  public static function getProductsAndCartItems($checkoutItems = [])
   {
-    $cartItems = self::getCartItems();
+    $cartItems = self::getCartItems($checkoutItems);
     $ids = Arr::pluck($cartItems, 'product_id');
     $products = Product::whereIn('id', $ids)->withTrashed()->get();
     $cartItems = Arr::keyBy($cartItems, 'product_id');
