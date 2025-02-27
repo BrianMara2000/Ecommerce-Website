@@ -20,7 +20,6 @@ onMounted(() => {
   initFlowbite();
   if (usePage().props.flash.info) {
     toast.info(usePage().props.flash.info);
-  } else {
   }
 });
 </script>
