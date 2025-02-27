@@ -17,7 +17,7 @@
               class="bg-red-100 border border-red-400 text-sm font text-red-700 px-4 py-2 mb-5 rounded relative"
               role="alert"
             >
-              <strong class="font-bold mr-2">Warning!</strong>
+              <strong class="font-bold mr-2">⚠ Warning!</strong>
               <span class="block sm:inline"
                 >This product is out of stock or has been deleted by the admin.
                 You cannot check it out.</span
@@ -30,9 +30,10 @@
               <input
                 type="checkbox"
                 class="rounded"
+                :class="product.deleted_at !== null ? 'cursor-not-allowed' : ''"
                 :value="product.id"
                 v-model="checkoutItems"
-                @checked="console.log(checkoutItems.value)"
+                :disabled="product.deleted_at !== null"
               />
 
               <a href="#" class="shrink-0 md:order-1">
@@ -57,10 +58,7 @@
                 <div class="flex items-center">
                   <button
                     @click.prevent="
-                      update(
-                        product,
-                        cartItems[itemId(product.id)].quantity - 1
-                      )
+                      update(product, getCartQuantity(product) - 1)
                     "
                     type="button"
                     id="decrement-button"
@@ -92,10 +90,7 @@
                   />
                   <button
                     @click.prevent="
-                      update(
-                        product,
-                        cartItems[itemId(product.id)].quantity + 1
-                      )
+                      update(product, getCartQuantity(product) + 1)
                     "
                     type="button"
                     id="increment-button"
@@ -200,7 +195,7 @@
                   Original price
                 </dt>
                 <dd class="text-base font-medium text-gray-900 dark:text-white">
-                  ${{ total }}
+                  ${{ totalPrice }}
                 </dd>
               </dl>
 
@@ -243,7 +238,7 @@
                 Total
               </dt>
               <dd class="text-base font-bold text-gray-900 dark:text-white">
-                ${{ total }}
+                ${{ totalPrice }}
               </dd>
             </dl>
           </div>
@@ -328,12 +323,23 @@ import { PlusIcon, MinusIcon } from "@heroicons/vue/24/outline";
 defineOptions({ layout: UserLayout });
 
 const products = computed(() => usePage().props.products);
-const total = computed(() => usePage().props.total);
 const cartItems = computed(() => usePage().props.cartItems);
 const itemId = (id) => (cartItems.value[id] ? id : -1);
 const checkoutItems = ref([]);
+const totalPrice = computed(() => {
+  return (
+    Object.values(cartItems.value)
+      ?.filter((item) => checkoutItems.value.includes(item.product_id)) // Only selected items
+      .reduce((sum, item) => {
+        const product = products.value.find((p) => p.id === item.product_id); // Find matching product
+        return sum + (product ? product.price * item.quantity : 0);
+      }, 0) ?? null
+  );
+});
 
-console.log(checkoutItems.value);
+const getCartQuantity = computed(() => {
+  return (product) => cartItems[itemId(product.id)]?.quantity ?? 1;
+});
 
 const update = (product, quantity) => {
   router.patch(route("cart.updateQuantity", product), {
@@ -353,6 +359,14 @@ const removeProduct = (slug) => {
 };
 
 const checkout = () => {
-  router.post(route("checkout.store"));
+  router.visit(route("checkout.store"), {
+    method: "post",
+    data: { checkoutItems: checkoutItems.value },
+    onSuccess: () => {
+      if (usePage().props.flash.error) {
+        toast.error(usePage().props.flash.error);
+      }
+    },
+  });
 };
 </script>

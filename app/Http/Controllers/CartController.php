@@ -18,12 +18,19 @@ class CartController extends Controller
 	{
 
 		$user = $request->user();
-		if ($user) {
-			[$products, $cartItems] = Cart::getProductsAndCartItems();
+		$checkoutItems = $request->input('checkoutItems', []);
 
-			$total = $products->filter(fn(Product $product) => $product->deleted_at === null)
+
+		if ($user) {
+			[$products, $cartItems] = Cart::getProductsAndCartItems($checkoutItems);
+			// dd($products, $cartItems);
+
+			$filteredProducts = $products->filter(fn(Product $product) => in_array($product->id, $checkoutItems));
+
+			$total = $filteredProducts->filter(fn(Product $product) => $product->deleted_at === null)
 				->reduce(fn(?float $carry, Product $product) => $carry + $product->price * $cartItems[$product->id]['quantity'], 0.0);
 			$total = round($total, 2);
+
 
 			if (!empty($cartItems)) {
 				return Inertia::render(

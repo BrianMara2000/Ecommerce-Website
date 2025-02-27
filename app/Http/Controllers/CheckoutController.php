@@ -25,15 +25,20 @@ class CheckoutController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
+        $checkoutItems = $request->post('checkoutItems');
 
         if (!$user->customer->shippingAddress || !$user->customer->billingAddress) {
 
             return redirect()->route('profile.edit')->withErrors('Please fill in your profile information before proceeding to checkout.')->withInput();
         }
 
+        if (empty($checkoutItems)) {
+            return redirect()->route('cart.index')->with('error', 'Please select items before proceeding to checkout.');
+        }
+
         $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
 
-        list($products, $cartItems) = Cart::getProductsAndCartItems();
+        list($products, $cartItems) = Cart::getProductsAndCartItems($checkoutItems);
         $orderItems = [];
         $lineItems = [];
         $totalPrice = 0;
@@ -100,12 +105,15 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            CartItem::where(['user_id' => $user->id])->delete();
+            CartItem::where(['user_id' => $user->id])->whereIn('product_id', $checkoutItems)->delete();
 
             return Inertia::location($checkout_session->url);
-        } catch (Exception $e) {
+        } catch (\Stripe\Exception\ApiErrorException $e) {
             DB::rollBack();
-            return redirect()->route('checkout.failure', ['message' => $e->getMessage()]);
+            return redirect()->route('checkout.failure')->with('error', 'Payment processing error: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('checkout.failure')->with('error', 'An unexpected error occurred. Please try again.');
         }
     }
 
@@ -128,25 +136,34 @@ class CheckoutController extends Controller
                 ->first();
 
             if (!$payment) {
-                throw new NotFoundHttpException();
+                return redirect()->route('checkout.failure')->with('error', 'No pending payment found.');
             }
 
             if ($payment->status === PaymentStatus::Pending->value) {
                 $this->updateOrderAndSession($payment);
             }
 
+            $order = $payment->order;
+            $purchasedProductIds = $order->items->pluck('product_id')->toArray();
+
+            CartItem::where('user_id', $user->id)
+                ->whereIn('product_id', $purchasedProductIds)
+                ->delete();
+
             $customer = $stripe->customers->retrieve($session->customer);
 
             return Inertia::render('User/Cart/Checkout/Success', ['session' => $session, 'customer' => $customer]);
         } catch (Exception $e) {
-            Log::critical("Checkout was not successful: " . $e->getMessage());
+            Log::critical("Checkout failed: " . $e->getMessage());
+            return redirect()->route('checkout.failure')->with('error', 'An error occurred during payment verification.');
         }
     }
 
     public function failure(Request $request)
     {
-        $message = $request->input('message');
-        return Inertia::render('User/Cart/Checkout/Failure', ['message' => $message]);
+        return Inertia::render('User/Cart/Checkout/Failure', [
+            'message' => session('error') ?? $request->query('error', 'Payment process was not completed.'),
+        ]);
     }
 
     public function checkoutOrder(Order $order, Request $request)

@@ -52,8 +52,15 @@
         Payment Failed!
       </h1>
       <p class="text-gray-500 dark:text-gray-400 mt-2">
-        You're transaction has failed due to {{ message }}. Please try again.
+        <span>{{ message }}. Please check </span>
+        <Link
+          :href="route('my-order.index')"
+          class="text-blue-500 hover:underline"
+          >My Order</Link
+        >
+        <span> page if you want to order it again.</span>
       </p>
+
       <!-- Buttons -->
       <div class="flex justify-center gap-4 mt-6">
         <Link
@@ -76,8 +83,9 @@ import { computed } from "vue";
 
 defineOptions({ layout: UserLayout });
 
-const customer = computed(() => usePage().props.customer.name);
-const message = computed(() => usePage().props.message);
+const message = computed(
+  () => usePage().props.error ?? "Something went wrong."
+);
 </script>
 
 <style scoped>
