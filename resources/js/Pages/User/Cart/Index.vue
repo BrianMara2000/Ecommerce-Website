@@ -149,7 +149,7 @@
                   </button>
 
                   <button
-                    @click="removeProduct(product.slug)"
+                    @click="removeProduct(product)"
                     class="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500"
                   >
                     <svg
@@ -338,7 +338,7 @@ const totalPrice = computed(() => {
 });
 
 const getCartQuantity = computed(() => {
-  return (product) => cartItems[itemId(product.id)]?.quantity ?? 1;
+  return (product) => cartItems.value[itemId(product.id)]?.quantity ?? 1;
 });
 
 const update = (product, quantity) => {
@@ -347,8 +347,8 @@ const update = (product, quantity) => {
   });
 };
 
-const removeProduct = (slug) => {
-  router.visit(route("cart.remove", slug), {
+const removeProduct = (product) => {
+  router.visit(route("cart.remove", product), {
     method: "delete",
     onSuccess: (page) => {
       if (page.props.flash.success) {
