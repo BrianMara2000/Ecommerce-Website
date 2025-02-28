@@ -99,29 +99,39 @@ class CartController extends Controller
 	public function remove(Request $request, Product $product)
 	{
 		$user = $request->user();
-		if ($user) {
-			$cartItem = CartItem::query()->where(['user_id' => $user->id, 'product_id' => $product->id])->first();
-			if ($cartItem) {
-				$cartItem->delete();
-			}
-			return redirect()->back()->with('success', 'item removed successfully');
-		} else {
-			$cartItems = json_decode($request->cookie('cart_items', '[]'), true);
-			foreach ($cartItems as $i => &$item) {
-				if ($item['product_id'] === $product->id) {
-					array_splice($cartItems, $i, 1);
-					break;
-				}
-			}
-			Cookie::queue('cart_items', json_encode($cartItems), 60 * 24 * 30);
 
-			if (count($cartItems) <= 0) {
-				return redirect()->route('user.home')->with('info', 'Your cart is now Empty');
-			} else {
-				return redirect()->back()->with('success', 'Item removed successfully');
+		if ($user) {
+			$cartItem = CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->first();
+
+			if (!$cartItem) {
+				return redirect()->back()->with('error', 'Item not found in your cart.');
 			}
+
+			$cartItem->delete();
+			if (!CartItem::where('user_id', $user->id)->exists()) {
+				return redirect()->route('user.home')->with('info', 'Your cart is now empty.');
+			}
+
+			return redirect()->back()->with('success', 'Item removed successfully.');
 		}
+
+		// Guest User: Handle cart in cookies
+		$cartItems = json_decode($request->cookie('cart_items', '[]'), true);
+
+		// Remove the item if it exists
+		$cartItems = array_values(array_filter($cartItems, function ($item) use ($product) {
+			return $item['product_id'] !== $product->id;
+		}));
+
+		Cookie::queue('cart_items', json_encode($cartItems), 60 * 24 * 30);
+
+		if (empty($cartItems)) {
+			return redirect()->route('user.home')->with('info', 'Your cart is now empty.');
+		}
+
+		return redirect()->back()->with('success', 'Item removed successfully.');
 	}
+
 	public function updateQuantity(Request $request, Product $product)
 	{
 		$quantity = (int)$request->post('quantity');
@@ -138,7 +148,7 @@ class CartController extends Controller
 		}
 
 		if ($user) {
-			CartItem::where(['user_id' => $request->user()->id, 'product_id' => $product->id])->update(['quantity' => $quantity]);
+			CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->update(['quantity' => $quantity]);
 		} else {
 			$cartItems = json_decode($request->cookie('cart_items', '[]'), true);
 			foreach ($cartItems as &$item) {
