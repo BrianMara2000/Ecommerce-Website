@@ -5,6 +5,8 @@ import Login from "../views/Login.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import ResetPassword from "../views/ResetPassword.vue";
 import Products from "../views/Products/Products.vue";
+import CreateProduct from "../views/Products/CreateProduct.vue";
+import EditProduct from "../views/Products/EditProduct.vue";
 import Orders from "../views/Orders/Orders.vue";
 import NotFound from "../views/NotFound.vue";
 import store from "../store";
@@ -32,6 +34,17 @@ const routes = [
         path: "products",
         name: "app.products",
         component: Products,
+      },
+      {
+        path: "/products/create",
+        name: "CreateProduct",
+        component: CreateProduct,
+      },
+      {
+        path: "/products/edit/:id",
+        name: "EditProduct",
+        component: EditProduct,
+        props: true,
       },
       {
         path: "orders",
