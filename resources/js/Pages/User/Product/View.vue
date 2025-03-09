@@ -136,8 +136,14 @@
               </div>
             </div>
             <p class="text-gray-500 text-base font-normal mb-5">
-              {{ product.description }}
-              <a href="#" class="text-indigo-600">More....</a>
+              <span v-html="truncatedDescription(product)"></span>
+              <a
+                v-if="product.description.length > maxLength"
+                @click.prevent="toggleShowMore"
+                class="text-indigo-600 cursor-pointer"
+              >
+                {{ isExpanded ? "Show Less" : "More..." }}
+              </a>
             </p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 py-8">
@@ -278,7 +284,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import UserLayout from "../Layouts/UserLayout.vue";
 import { useCart } from "@/utils/utils";
 
@@ -288,6 +294,22 @@ defineProps({
     required: true,
   },
 });
+
+const maxLength = 150; // Maximum characters before truncation
+const isExpanded = ref(false);
+
+const truncatedDescription = computed(() => {
+  return (product) =>
+    isExpanded.value
+      ? product.description
+      : product.description.length > maxLength
+      ? product.description.substring(0, maxLength) + "..."
+      : product.description;
+});
+
+const toggleShowMore = () => {
+  isExpanded.value = !isExpanded.value;
+};
 
 const quantity = ref(1);
 
