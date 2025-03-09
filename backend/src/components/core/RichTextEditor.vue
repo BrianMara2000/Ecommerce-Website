@@ -396,15 +396,20 @@ h3.my-custom-class {
 }
 
 .prose table {
-  @apply w-full border border-gray-300;
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #d1d5db; /* Tailwind's gray-300 */
 }
 
 .prose th,
 .prose td {
-  @apply border border-gray-300 px-3 py-2 text-left;
+  border: 1px solid #d1d5db; /* Tailwind's gray-300 */
+  padding: 8px 12px; /* Equivalent to px-3 py-2 */
+  text-align: left;
 }
 
 .prose th {
-  @apply bg-gray-100 font-bold;
+  background-color: #f3f4f6; /* Tailwind's gray-100 */
+  font-weight: bold;
 }
 </style>
