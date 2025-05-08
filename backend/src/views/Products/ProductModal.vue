@@ -211,6 +211,7 @@ const product = ref({
   image: props.product.image,
   description: props.product.description,
   price: props.product.price,
+  stock: props.product.stock,
   status: props.product.status,
 });
 
@@ -242,6 +243,7 @@ onUpdated(() => {
     image: props.product.image,
     description: props.product.description,
     price: props.product.price,
+    stock: props.product.stock,
     status: props.product.status,
   };
 });
