@@ -30,10 +30,20 @@
               <input
                 type="checkbox"
                 class="rounded"
-                :class="product.deleted_at !== null ? 'cursor-not-allowed' : ''"
+                :class="
+                  product.deleted_at !== null ||
+                  product.stock <= 0 ||
+                  (cartItems[itemId(product.id)]?.quantity ?? 0) > product.stock
+                    ? 'cursor-not-allowed'
+                    : ''
+                "
                 :value="product.id"
                 v-model="checkoutItems"
-                :disabled="product.deleted_at !== null"
+                :disabled="
+                  product.deleted_at !== null ||
+                  product.stock <= 0 ||
+                  (cartItems[itemId(product.id)]?.quantity ?? 0) > product.stock
+                "
               />
 
               <a href="#" class="shrink-0 md:order-1">
@@ -56,6 +66,21 @@
                 class="flex items-center justify-between md:order-3 md:justify-end"
               >
                 <div class="flex items-center">
+                  <p
+                    v-if="product.stock === 0"
+                    class="text-red-600 mr-5 text-sm"
+                  >
+                    Out of stock!
+                  </p>
+                  <p
+                    v-else-if="product.stock <= 5"
+                    class="text-orange-600 mr-5 text-sm"
+                  >
+                    Only {{ product.stock }} left in stock!
+                  </p>
+                  <p v-else class="text-green-600 mr-5 text-sm">
+                    In stock: {{ product.stock }}
+                  </p>
                   <button
                     @click.prevent="
                       update(product, getCartQuantity(product) - 1)
@@ -94,12 +119,20 @@
                     "
                     type="button"
                     id="increment-button"
-                    :disabled="!!product.deleted_at"
+                    :disabled="
+                      !!product.deleted_at ||
+                      product.stock <= 0 ||
+                      (cartItems[itemId(product.id)]?.quantity ?? 0) >=
+                        product.stock
+                    "
                     class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
                     :class="[
-                      !product.deleted_at
-                        ? ''
-                        : 'cursor-not-allowed text-gray-300 dark:text-gray-500',
+                      !!product.deleted_at ||
+                      product.stock <= 0 ||
+                      (cartItems[itemId(product.id)]?.quantity ?? 0) >=
+                        product.stock
+                        ? 'cursor-not-allowed text-gray-300 dark:text-gray-500'
+                        : '',
                     ]"
                   >
                     <PlusIcon
@@ -125,26 +158,13 @@
 
                 <div class="flex items-center gap-4">
                   <button
+                    disabled
                     type="button"
-                    class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 hover:underline dark:text-gray-400 dark:hover:text-white"
+                    class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 hover:underline dark:text-gray-400 dark:hover:text-white cursor-not-allowed"
                   >
-                    <svg
-                      class="me-1.5 h-5 w-5"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"
-                      />
-                    </svg>
+                    <HeartIcon
+                      class="me-1.5 h-5 w-5 text-gray-500 dark:text-gray-400"
+                    />
                     Add to Favorites
                   </button>
 
@@ -152,23 +172,9 @@
                     @click="removeProduct(product)"
                     class="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500"
                   >
-                    <svg
-                      class="me-1.5 h-5 w-5"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18 17.94 6M18 18 6.06 6"
-                      />
-                    </svg>
+                    <XMarkIcon
+                      class="me-1.5 h-5 w-5 text-red-600 dark:text-red-500"
+                    />
                     Remove
                   </button>
                 </div>
@@ -318,7 +324,12 @@ import UserLayout from "../Layouts/UserLayout.vue";
 import { usePage, router } from "@inertiajs/vue3";
 import { toast } from "vue3-toastify";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import { PlusIcon, MinusIcon } from "@heroicons/vue/24/outline";
+import {
+  PlusIcon,
+  MinusIcon,
+  XMarkIcon,
+  HeartIcon,
+} from "@heroicons/vue/24/outline";
 
 defineOptions({ layout: UserLayout });
 
