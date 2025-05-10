@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\Api\Product;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -66,6 +67,7 @@ class CheckoutController extends Controller
             ];
         }
 
+        dd($orderItems);
         $checkout_session = $stripe->checkout->sessions->create([
             'line_items' => $lineItems,
             'mode' => 'payment',
@@ -105,6 +107,8 @@ class CheckoutController extends Controller
 
             DB::commit();
 
+
+
             CartItem::where(['user_id' => $user->id])->whereIn('product_id', $checkoutItems)->delete();
 
             return Inertia::location($checkout_session->url);
@@ -142,6 +146,18 @@ class CheckoutController extends Controller
             if ($payment->status === PaymentStatus::Pending->value) {
                 $this->updateOrderAndSession($payment);
             }
+
+            DB::transaction(function () use ($payment) {
+                foreach ($payment->order->items as $item) {
+                    $product = $item->product;
+
+                    if ($product->stock < $item->quantity) {
+                        throw new \Exception("Insufficient stock for {$product->title}.");
+                    }
+
+                    $product->decrement('stock', $item->quantity);
+                }
+            });
 
             $order = $payment->order;
             $purchasedProductIds = $order->items->pluck('product_id')->toArray();
@@ -235,7 +251,7 @@ class CheckoutController extends Controller
                 $paymentMethod = $event->data->object; // contains a \Stripe\PaymentMethod
                 // handlePaymentMethodAttached($paymentMethod);
                 break;
-                // ... handle other event types
+            // ... handle other event types
             default:
                 echo 'Received unknown event type ' . $event->type;
         }
