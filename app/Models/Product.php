@@ -23,6 +23,16 @@ class Product extends Model
             ->saveSlugsTo('slug');
     }
 
+    public function getEncodedImageUrlAttribute(): string
+    {
+        $path = parse_url($this->image, PHP_URL_PATH);
+        $filename = basename($path);
+        $encodedName = rawurlencode($filename);
+
+        return str_replace($filename, $encodedName, $this->image);
+    }
+
+
     public function getRouteKeyName()
     {
         return 'slug';
