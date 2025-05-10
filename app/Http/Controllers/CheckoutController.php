@@ -53,7 +53,7 @@ class CheckoutController extends Controller
                     'currency' => 'usd',
                     'product_data' => [
                         'name' => $product->title,
-                        'images' => [$product->image], // Please check the image url if you encountered NOT VALID URL error
+                        'images' => [$product->encoded_image_url], // Please check the image url if you encountered NOT VALID URL error
                     ],
                     'unit_amount' => $product->price * 100,
                 ],
@@ -67,7 +67,6 @@ class CheckoutController extends Controller
             ];
         }
 
-        dd($orderItems);
         $checkout_session = $stripe->checkout->sessions->create([
             'line_items' => $lineItems,
             'mode' => 'payment',
