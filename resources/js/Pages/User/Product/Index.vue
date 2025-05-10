@@ -107,9 +107,19 @@
                 >${{ product.price }}</span
               >
               <PrimaryButton
+                v-if="product.stock > 0"
+                :class="
+                  product.stock === 0
+                    ? 'cursor-not-allowed bg-gray-500'
+                    : 'cursor-pointer'
+                "
+                :disabled="product.stock === 0"
                 @click="addToCart(product)"
                 buttonText="Add to Cart"
               />
+              <span v-else class="flex-1 text-red-600 font-bold text-center"
+                >Out of Stock</span
+              >
             </div>
           </div>
         </div>

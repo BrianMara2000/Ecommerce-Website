@@ -81,6 +81,7 @@ export function createProduct({ commit }, product) {
     form.append("image", product.image);
     form.append("description", product.description);
     form.append("price", product.price);
+    form.append("stock", product.stock);
     form.append("status", product.status);
 
     product = form;
@@ -96,6 +97,7 @@ export function updateProduct({ commit }, product) {
     form.append("image", product.image);
     form.append("description", product.description);
     form.append("price", product.price);
+    form.append("stock", product.stock);
     form.append("status", product.status);
     form.append("_method", "PUT");
 

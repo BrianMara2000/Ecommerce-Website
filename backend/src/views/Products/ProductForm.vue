@@ -31,14 +31,38 @@
             class="mt-2"
             :message="error"
           />
-          <CustomInput type="number" v-model="product.price" label="Price" />
-          <InputError
-            v-if="errors.price"
-            v-for="(error, index) in errors.price"
-            :key="index"
-            class="mt-2"
-            :message="error"
-          />
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex flex-col">
+              <CustomInput
+                type="number"
+                v-model="product.price"
+                label="Price"
+              />
+              <InputError
+                v-if="errors.price"
+                v-for="(error, index) in errors.price"
+                :key="index"
+                class="mt-2"
+                :message="error"
+              />
+            </div>
+
+            <div class="flex flex-col">
+              <CustomInput
+                type="number"
+                v-model="product.stock"
+                label="Stock"
+              />
+              <InputError
+                v-if="errors.stock"
+                v-for="(error, index) in errors.stock"
+                :key="index"
+                class="mt-2"
+                :message="error"
+              />
+            </div>
+          </div>
 
           <!-- File Upload with File Name Display -->
           <div class="flex items-center gap-4">
@@ -164,6 +188,7 @@ const product = ref({
   image_url: "",
   description: "",
   price: "",
+  stock: 0,
   status: "",
   category: "",
 });

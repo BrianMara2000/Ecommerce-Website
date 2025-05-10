@@ -87,6 +87,14 @@
             >Price</TableHeaderCell
           >
           <TableHeaderCell
+            @click="sortProducts"
+            class="border-b-2 p-2 text-right"
+            field="stock"
+            :sort-field="sortField"
+            :sort-direction="sortDirection"
+            >Stock</TableHeaderCell
+          >
+          <TableHeaderCell
             class="border-b-2 p-2 w-[20%]"
             field="status"
             :sort-field="sortField"
@@ -128,6 +136,7 @@
             {{ product.title }}
           </td>
           <td class="border-b p-2">$ {{ product.price }}</td>
+          <td class="border-b p-2 text-center">{{ product.stock }}</td>
           <td class="border-b p-2">
             <ProductStatus :product="product.status" />
           </td>

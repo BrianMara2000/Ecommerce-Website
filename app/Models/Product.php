@@ -14,7 +14,7 @@ class Product extends Model
     use HasSlug;
     use SoftDeletes;
 
-    protected $fillable = ['title', 'description', 'image', 'price', 'image_mime', 'image_size', 'created_by', 'updated_by', 'status'];
+    protected $fillable = ['title', 'description', 'image', 'price', 'stock', 'image_mime', 'image_size', 'created_by', 'updated_by', 'status'];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -22,6 +22,16 @@ class Product extends Model
             ->generateSlugsFrom('title')
             ->saveSlugsTo('slug');
     }
+
+    public function getEncodedImageUrlAttribute(): string
+    {
+        $path = parse_url($this->image, PHP_URL_PATH);
+        $filename = basename($path);
+        $encodedName = rawurlencode($filename);
+
+        return str_replace($filename, $encodedName, $this->image);
+    }
+
 
     public function getRouteKeyName()
     {
