@@ -47,8 +47,8 @@ class CartController extends Controller
 		} else {
 			$cartItems = Cart::getCookieCartItems();
 			if (count($cartItems) > 0) {
-				$cartItems = new CartResource(Cart::getProductsAndCartItems());
-				return  Inertia::render('User/Cart/Index', ['cartItems' => $cartItems]);
+				[$products, $cartItems] = new CartResource(Cart::getProductsAndCartItems());
+				return  Inertia::render('User/Cart/Index', ['cartItems' => $cartItems, 'products' => $products]);
 			} else {
 				return redirect()->back()->with('info', "Cart was empty");
 			}
